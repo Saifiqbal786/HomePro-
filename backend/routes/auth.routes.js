@@ -14,5 +14,12 @@ router.post('/login', validate({
 }), auth.login);
 
 router.get('/me', authMiddleware, auth.getMe);
+router.post('/verify-otp', validate({
+    email: ['required', 'email'], otp: ['required']
+}), auth.verifyOTP);
+
+router.post('/resend-otp', validate({
+    email: ['required', 'email']
+}), auth.resendOTP);
 
 module.exports = router;

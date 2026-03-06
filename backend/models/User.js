@@ -24,9 +24,14 @@ class User {
         return this.findById(id);
     }
 
+    static async updateOTP(id, otp, expiry) {
+        const sql = getDb();
+        await sql`UPDATE users SET otp = ${otp}, otp_expiry = ${expiry} WHERE id = ${id}`;
+    }
+
     static async update(id, fields) {
         const sql = getDb();
-        const allowed = ['name', 'phone', 'avatar', 'gender', 'location', 'latitude', 'longitude', 'is_online'];
+        const allowed = ['name', 'phone', 'avatar', 'gender', 'location', 'latitude', 'longitude', 'is_online', 'is_verified'];
 
         // Filter out fields not allowed
         const updateData = {};

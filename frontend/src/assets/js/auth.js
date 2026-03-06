@@ -13,12 +13,22 @@ async function login(email, password) {
 async function register(dataOrForm) {
     const isForm = dataOrForm instanceof FormData;
     const data = isForm ? await api.postForm('/auth/register', dataOrForm) : await api.post('/auth/register', dataOrForm);
+    // Note: Registration now requires OTP verification, so we don't log in immediately
+    return data;
+}
+
+async function verifyOtp(email, otp) {
+    const data = await api.post('/auth/verify-otp', { email, otp });
     if (data && data.token) {
         setToken(data.token);
         setUser(data.user);
         redirectByRole(data.user.role);
     }
     return data;
+}
+
+async function resendOtp(email) {
+    return await api.post('/auth/resend-otp', { email });
 }
 
 function logout() {
