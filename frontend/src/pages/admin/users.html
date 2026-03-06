@@ -4,10 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomePro Admin Dashboard</title>
+    <title>User Management - HomePro Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #137fec;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .badge-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-suspended {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-blocked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .modal-bg {
+            background: rgba(0, 0, 0, 0.55);
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50 flex h-screen overflow-hidden text-gray-800">
@@ -16,160 +52,388 @@
     <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex">
         <div class="h-16 flex items-center px-6 border-b border-slate-800">
             <h1 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="fas fa-hammer text-primary-500"></i> HomePro Admin
+                <i class="fas fa-hammer text-blue-400"></i> HomePro Admin
             </h1>
         </div>
-
         <nav class="flex-1 py-4 overflow-y-auto">
             <ul class="space-y-1">
-                <li>
-                    <a href="dashboard.html"
-                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-                        <i class="fas fa-chart-pie w-5"></i> Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="#" id="navUsers"
-                        class="flex items-center gap-3 px-6 py-3 text-white bg-slate-800 border-l-4 border-primary-500">
-                        <i class="fas fa-users w-5"></i> Users
-                    </a>
-                </li>
-                <li>
-                    <a href="analytics.html"
-                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-                        <i class="fas fa-chart-line w-5"></i> Analytics
-                    </a>
-                </li>
-                <!-- Future Navigation Links -->
+                <li><a href="dashboard.html"
+                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><i
+                            class="fas fa-chart-pie w-5"></i> Dashboard</a></li>
+                <li><a href="users.html"
+                        class="flex items-center gap-3 px-6 py-3 text-white bg-slate-800 border-l-4 border-blue-400"><i
+                            class="fas fa-users w-5"></i> Users</a></li>
+                <li><a href="analytics.html"
+                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"><i
+                            class="fas fa-chart-line w-5"></i> Analytics</a></li>
             </ul>
         </nav>
-
         <div class="p-4 border-t border-slate-800">
-            <button id="logoutBtn"
-                class="flex items-center gap-3 px-2 py-2 w-full text-slate-400 hover:text-white transition-colors">
-                <i class="fas fa-sign-out-alt"></i> Logout
+            <button onclick="adminLogout()"
+                class="flex items-center gap-3 px-6 py-3 w-full text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm">
+                <i class="fas fa-sign-out-alt w-5"></i> Logout
             </button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <!-- Header -->
-        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10">
-            <button class="md:hidden text-gray-500 hover:text-gray-700">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-            <div class="flex items-center gap-4 ml-auto">
-                <span id="adminNameDisplay" class="text-sm font-medium text-gray-700">Admin</span>
-                <img id="adminAvatar" src="https://ui-avatars.com/api/?name=Admin" alt="Admin"
-                    class="w-8 h-8 rounded-full">
+    <!-- Main -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Topbar -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-users text-blue-500 text-xl"></i>
+                <h2 class="text-xl font-bold text-gray-900">User Management</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Auto-Suspend button (workers only, shown when filtered) -->
+                <button id="autoSuspendBtn" onclick="openAutoSuspend()"
+                    class="hidden items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all">
+                    <i class="fas fa-robot"></i> Auto-Suspend Low Rated
+                </button>
+                <span id="adminEmail" class="text-sm text-gray-500"></span>
             </div>
         </header>
 
-        <!-- Dynamic Page Content -->
-        <div class="flex-1 overflow-y-auto bg-slate-50 p-6">
-            <div class="max-w-7xl mx-auto space-y-6">
+        <!-- Filter tabs -->
+        <div class="bg-white border-b border-gray-200 px-6 flex gap-1 pt-3">
+            <button onclick="filterUsers('all')" id="tab-all"
+                class="tab-btn active-tab px-5 py-2.5 text-sm font-semibold border-b-2 border-blue-500 text-blue-600">All
+                Users</button>
+            <button onclick="filterUsers('worker')" id="tab-worker"
+                class="tab-btn px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Workers</button>
+            <button onclick="filterUsers('homeowner')" id="tab-homeowner"
+                class="tab-btn px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700">Clients</button>
+        </div>
 
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-800">Platform Users</h2>
-                    <button onclick="document.getElementById('addUserModal').classList.remove('hidden')"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-                        <i class="fas fa-plus"></i> Add New User
-                    </button>
-                </div>
-
-                <!-- Add User Modal -->
-                <div id="addUserModal"
-                    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-gray-800">Create New User</h3>
-                            <button onclick="document.getElementById('addUserModal').classList.add('hidden')"
-                                class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
-                        </div>
-                        <form id="addUserForm" class="p-6 space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input type="text" id="addUserName" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                <input type="email" id="addUserEmail" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <input type="password" id="addUserPassword" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone (Optional)</label>
-                                <input type="tel" id="addUserPhone"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Account Role</label>
-                                <select id="addUserRole" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all bg-white">
-                                    <option value="homeowner">Homeowner (Client)</option>
-                                    <option value="worker">Service Worker</option>
-                                    <option value="admin">Administrator</option>
-                                </select>
-                            </div>
-                            <div class="pt-4 flex justify-end gap-3">
-                                <button type="button"
-                                    onclick="document.getElementById('addUserModal').classList.add('hidden')"
-                                    class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium">Cancel</button>
-                                <button type="submit" id="addUserBtn"
-                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">Create
-                                    User</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Users Table -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                        <h3 class="text-lg font-bold text-gray-800" id="totalUsersCount">Users</h3>
-                        <select id="roleFilter"
-                            class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                            <option value="">All Roles</option>
-                            <option value="homeowner">Homeowners</option>
-                            <option value="worker">Workers</option>
-                            <option value="admin">Admins</option>
-                        </select>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr
-                                    class="bg-white text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
-                                    <th class="px-6 py-3 font-medium">Name</th>
-                                    <th class="px-6 py-3 font-medium">Email</th>
-                                    <th class="px-6 py-3 font-medium">Role</th>
-                                    <th class="px-6 py-3 font-medium">Phone</th>
-                                    <th class="px-6 py-3 font-medium">Status</th>
-                                    <th class="px-6 py-3 font-medium text-right">Joined</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTableBody" class="text-sm divide-y divide-gray-100">
-                                <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading users...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+        <!-- Search -->
+        <div class="px-6 py-4 bg-white border-b border-gray-100">
+            <div class="relative max-w-md">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input id="searchInput" type="text" placeholder="Search by name or email…"
+                    class="pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    oninput="applySearch()" />
             </div>
         </div>
-    </main>
 
-    <script src="../../js/users.js"></script>
+        <!-- Table -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <div id="loadingState" class="flex flex-col items-center justify-center h-64 gap-4">
+                <div class="spinner" style="width:40px;height:40px;"></div>
+                <p class="text-gray-500">Loading users...</p>
+            </div>
+
+            <div id="tableWrap" class="hidden">
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="text-left px-5 py-3.5 font-semibold text-gray-600">User</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-gray-600">Role</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-gray-600">Status</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-gray-600">Verified</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-gray-600">Rating</th>
+                                <th class="text-left px-5 py-3.5 font-semibold text-gray-600">Joined</th>
+                                <th class="text-right px-5 py-3.5 font-semibold text-gray-600">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                    <div id="emptyState" class="hidden text-center py-16 text-gray-400">
+                        <i class="fas fa-user-slash text-4xl mb-3 block"></i>
+                        <p class="font-medium">No users found</p>
+                    </div>
+                </div>
+                <p id="userCount" class="text-xs text-gray-400 mt-3 text-right"></p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Suspend Modal -->
+    <div id="suspendModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold mb-1 flex items-center gap-2 text-amber-600">
+                <i class="fas fa-pause-circle"></i> Suspend Account
+            </h3>
+            <p id="suspendUserName" class="text-sm text-gray-500 mb-5"></p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reason <span
+                            class="text-red-500">*</span></label>
+                    <textarea id="suspendReason" rows="3"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none"
+                        placeholder="Explain why this account is being suspended…"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Suspend until (leave blank for
+                        indefinite)</label>
+                    <input id="suspendUntil" type="date"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+                </div>
+                <div class="flex gap-3 justify-end pt-2">
+                    <button onclick="closeSuspendModal()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Cancel</button>
+                    <button onclick="confirmSuspend()" id="suspendConfirmBtn"
+                        class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold">Suspend</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-Suspend Modal -->
+    <div id="autoSuspendModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold mb-1 flex items-center gap-2 text-amber-600">
+                <i class="fas fa-robot"></i> Auto-Suspend Low Rated Workers
+            </h3>
+            <p class="text-sm text-gray-500 mb-5">Workers below the rating threshold with enough reviews will be
+                suspended automatically.</p>
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Min. Rating Threshold</label>
+                    <input id="asThreshold" type="number" value="2.5" step="0.5" min="1" max="4"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Min. Reviews Required</label>
+                    <input id="asMinReviews" type="number" value="3" min="1"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+                </div>
+            </div>
+            <div id="asResult" class="hidden text-sm p-3 rounded-lg bg-amber-50 text-amber-800 mb-4"></div>
+            <div class="flex gap-3 justify-end">
+                <button onclick="closeAutoSuspend()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Cancel</button>
+                <button onclick="runAutoSuspend()" id="asRunBtn"
+                    class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"
+        class="hidden fixed bottom-5 right-5 z-[99] bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-xl flex items-center gap-2">
+        <i id="toastIcon" class="fas fa-check-circle text-green-400"></i>
+        <span id="toastMsg"></span>
+    </div>
+
+    <script>
+        // ── Auth ─────────────────────────────────────────────────
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('homepro_token');
+        const adminData = JSON.parse(localStorage.getItem('admin_user') || localStorage.getItem('homepro_user') || 'null');
+        if (!token || !adminData || adminData.role !== 'admin') {
+            window.location.href = '/src/pages/admin/login.html'; throw 'Unauthorized';
+        }
+        document.getElementById('adminEmail').textContent = adminData.email || adminData.name;
+        function adminLogout() {
+            ['admin_token', 'admin_user', 'homepro_token', 'homepro_user'].forEach(k => localStorage.removeItem(k));
+            window.location.href = '/src/pages/admin/login.html';
+        }
+
+        // ── State ─────────────────────────────────────────────────
+        let allUsers = [];
+        let currentFilter = 'all';
+        let suspendTargetId = null;
+
+        // ── Toast ─────────────────────────────────────────────────
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            document.getElementById('toastIcon').className = type === 'success'
+                ? 'fas fa-check-circle text-green-400' : 'fas fa-exclamation-circle text-red-400';
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3500);
+        }
+
+        // ── API helper ────────────────────────────────────────────
+        async function apiRequest(method, url, body) {
+            const res = await fetch(url, {
+                method,
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: body ? JSON.stringify(body) : undefined
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+            return data;
+        }
+
+        // ── Load Users ────────────────────────────────────────────
+        async function loadUsers() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('tableWrap').classList.add('hidden');
+            try {
+                const role = currentFilter === 'all' ? '' : currentFilter;
+                const url = `/api/admin/users${role ? `?role=${role}` : ''}`;
+                const data = await apiRequest('GET', url);
+                allUsers = data.users || [];
+                document.getElementById('autoSuspendBtn').classList.toggle('hidden', currentFilter !== 'worker');
+                document.getElementById('autoSuspendBtn').classList.toggle('flex', currentFilter === 'worker');
+                renderTable(allUsers);
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('tableWrap').classList.remove('hidden');
+            }
+        }
+
+        // ── Filter Tabs ───────────────────────────────────────────
+        function filterUsers(type) {
+            currentFilter = type;
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.className = 'tab-btn px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+            });
+            document.getElementById(`tab-${type}`).className = 'tab-btn active-tab px-5 py-2.5 text-sm font-semibold border-b-2 border-blue-500 text-blue-600';
+            document.getElementById('searchInput').value = '';
+            loadUsers();
+        }
+
+        // ── Search ────────────────────────────────────────────────
+        function applySearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = q ? allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) : allUsers;
+            renderTable(filtered);
+        }
+
+        // ── Render Table ──────────────────────────────────────────
+        function statusBadge(status, until) {
+            const labels = { active: 'Active', suspended: 'Suspended', blocked: 'Blocked' };
+            const classes = { active: 'badge-active', suspended: 'badge-suspended', blocked: 'badge-blocked' };
+            const icons = { active: 'fa-check-circle', suspended: 'fa-pause-circle', blocked: 'fa-ban' };
+            let extra = '';
+            if (status === 'suspended' && until) {
+                extra = `<span class="block text-[10px] opacity-75">until ${new Date(until).toLocaleDateString()}</span>`;
+            }
+            return `<span class="inline-flex flex-col px-2.5 py-1 rounded-full text-xs font-semibold ${classes[status] || 'bg-gray-100 text-gray-600'}">
+                <span><i class="fas ${icons[status] || 'fa-circle'} mr-1"></i>${labels[status] || status}</span>${extra}
+            </span>`;
+        }
+
+        function renderTable(users) {
+            const tbody = document.getElementById('usersTable');
+            const empty = document.getElementById('emptyState');
+            document.getElementById('userCount').textContent = `Showing ${users.length} user${users.length !== 1 ? 's' : ''}`;
+
+            if (users.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            tbody.innerHTML = users.map(u => {
+                const joined = new Date(u.created_at).toLocaleDateString();
+                const name = u.name || 'Unknown';
+                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=137fec&color=fff&size=64`;
+                const isWorker = u.role === 'worker';
+                const isActive = u.account_status === 'active' || !u.account_status;
+                const isBlocked = u.account_status === 'blocked';
+                const isSuspended = u.account_status === 'suspended';
+                const isVerified = u.is_verified == 1;
+                const rating = u.rating ? `<span class="text-amber-500 font-semibold">${parseFloat(u.rating).toFixed(1)}</span><span class="text-gray-400 text-xs"> / 5</span><span class="text-gray-400 text-xs ml-1">(${u.total_reviews || 0})</span>` : '<span class="text-gray-300">—</span>';
+
+                return `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${avatar}" class="w-9 h-9 rounded-full object-cover" />
+                            <div>
+                                <p class="font-semibold text-gray-900">${name}</p>
+                                <p class="text-xs text-gray-400">${u.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${isWorker ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">
+                            <i class="fas ${isWorker ? 'fa-hard-hat' : 'fa-home'} mr-1"></i>${u.role}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4">${statusBadge(u.account_status || 'active', u.suspended_until)}</td>
+                    <td class="px-5 py-4">
+                        ${isVerified
+                        ? `<span class="text-emerald-600 text-xs font-semibold"><i class="fas fa-check-circle mr-1"></i>Verified</span>`
+                        : `<span class="text-gray-400 text-xs"><i class="fas fa-times-circle mr-1"></i>Unverified</span>`}
+                    </td>
+                    <td class="px-5 py-4">${isWorker ? rating : '<span class="text-gray-300">—</span>'}</td>
+                    <td class="px-5 py-4 text-xs text-gray-400">${joined}</td>
+                    <td class="px-5 py-4">
+                        <div class="flex justify-end gap-1.5 flex-wrap">
+                            ${isVerified
+                        ? `<button onclick="moderate('${u.id}','unverify')" title="Remove Verification" class="action-btn bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fas fa-times-circle mr-1"></i>Unverify</button>`
+                        : `<button onclick="moderate('${u.id}','verify')" title="Verify" class="action-btn bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fas fa-check-circle mr-1"></i>Verify</button>`}
+                            ${!isActive
+                        ? `<button onclick="moderate('${u.id}','activate')" class="action-btn bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fas fa-undo mr-1"></i>Activate</button>`
+                        : ''}
+                            ${!isSuspended
+                        ? `<button onclick="openSuspend('${u.id}','${name.replace(/'/g, "\\'")}',false)" class="action-btn bg-amber-100 hover:bg-amber-200 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fas fa-pause-circle mr-1"></i>Suspend</button>`
+                        : ''}
+                            ${!isBlocked
+                        ? `<button onclick="moderate('${u.id}','block')" class="action-btn bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fas fa-ban mr-1"></i>Block</button>`
+                        : ''}
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ── Moderation ────────────────────────────────────────────
+        async function moderate(userId, action, reason, suspended_until) {
+            const labels = { verify: 'Verified', unverify: 'Unverified', block: 'Blocked', activate: 'Activated' };
+            try {
+                await apiRequest('PATCH', `/api/admin/users/${userId}/moderate`, { action, reason, suspended_until });
+                showToast(`${labels[action] || action} successfully`, 'success');
+                loadUsers();
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        // ── Suspend Modal ─────────────────────────────────────────
+        function openSuspend(userId, userName) {
+            suspendTargetId = userId;
+            document.getElementById('suspendUserName').textContent = userName;
+            document.getElementById('suspendReason').value = '';
+            document.getElementById('suspendUntil').value = '';
+            // Set min date to tomorrow
+            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('suspendUntil').min = tomorrow.toISOString().split('T')[0];
+            document.getElementById('suspendModal').classList.remove('hidden');
+        }
+        function closeSuspendModal() {
+            document.getElementById('suspendModal').classList.add('hidden');
+            suspendTargetId = null;
+        }
+        async function confirmSuspend() {
+            const reason = document.getElementById('suspendReason').value.trim();
+            if (!reason) { showToast('Please provide a suspension reason.', 'error'); return; }
+            const until = document.getElementById('suspendUntil').value || null;
+            const btn = document.getElementById('suspendConfirmBtn');
+            btn.disabled = true; btn.textContent = 'Suspending…';
+            try {
+                await apiRequest('PATCH', `/api/admin/users/${suspendTargetId}/moderate`, {
+                    action: 'suspend', reason, suspended_until: until || null
+                });
+                showToast('Account suspended.', 'success');
+                closeSuspendModal();
+                loadUsers();
+            } catch (err) { showToast(err.message, 'error'); }
+            btn.disabled = false; btn.textContent = 'Suspend';
+        }
+
+        // ── Auto-Suspend Modal ─────────────────────────────────────
+        function openAutoSuspend() { document.getElementById('autoSuspendModal').classList.remove('hidden'); document.getElementById('asResult').classList.add('hidden'); }
+        function closeAutoSuspend() { document.getElementById('autoSuspendModal').classList.add('hidden'); }
+        async function runAutoSuspend() {
+            const threshold = parseFloat(document.getElementById('asThreshold').value) || 2.5;
+            const min_reviews = parseInt(document.getElementById('asMinReviews').value) || 3;
+            const btn = document.getElementById('asRunBtn');
+            btn.disabled = true; btn.textContent = 'Running…';
+            try {
+                const data = await apiRequest('POST', '/api/admin/workers/auto-suspend', { threshold, min_reviews });
+                const res = document.getElementById('asResult');
+                res.textContent = data.message;
+                res.classList.remove('hidden');
+                if (data.suspended && data.suspended.length > 0) loadUsers();
+            } catch (err) { showToast(err.message, 'error'); }
+            btn.disabled = false; btn.textContent = 'Run';
+        }
+
+        // ── Boot ──────────────────────────────────────────────────
+        loadUsers();
+    </script>
 </body>
 
 </html>

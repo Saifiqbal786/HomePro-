@@ -3,9 +3,102 @@ const Task = require('../models/Task');
 const Payment = require('../models/Payment');
 const { getDb } = require('../config/database');
 
+// ── Moderation ────────────────────────────────────────────────────────────────
+
+exports.moderateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action, reason, suspended_until } = req.body;
+
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const sql = getDb();
+
+        switch (action) {
+            case 'verify':
+                await User.adminUpdate(id, { is_verified: 1 });
+                if (user.role === 'worker') {
+                    await sql`UPDATE worker_profiles SET is_verified = 1 WHERE worker_id = ${id}`;
+                }
+                return res.json({ message: 'User verified successfully', action });
+
+            case 'unverify':
+                await User.adminUpdate(id, { is_verified: 0 });
+                if (user.role === 'worker') {
+                    await sql`UPDATE worker_profiles SET is_verified = 0 WHERE worker_id = ${id}`;
+                }
+                return res.json({ message: 'Verification removed', action });
+
+            case 'block':
+                await User.adminUpdate(id, {
+                    account_status: 'blocked',
+                    suspension_reason: reason || 'Violated platform terms',
+                    suspended_until: null
+                });
+                return res.json({ message: 'User blocked', action });
+
+            case 'suspend':
+                await User.adminUpdate(id, {
+                    account_status: 'suspended',
+                    suspension_reason: reason || 'Temporary suspension',
+                    suspended_until: suspended_until || null
+                });
+                return res.json({ message: 'User suspended', action });
+
+            case 'activate':
+                await User.adminUpdate(id, {
+                    account_status: 'active',
+                    suspension_reason: null,
+                    suspended_until: null
+                });
+                return res.json({ message: 'Account restored', action });
+
+            default:
+                return res.status(400).json({ error: 'Invalid action' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.autoSuspendLowRatedWorkers = async (req, res) => {
+    try {
+        const { threshold = 2.5, min_reviews = 3 } = req.body;
+        const sql = getDb();
+
+        // Find workers below threshold with enough reviews
+        const workers = await sql`
+            SELECT u.id, u.name, u.email, wp.rating, wp.total_reviews
+            FROM users u
+            JOIN worker_profiles wp ON wp.worker_id = u.id
+            WHERE u.role = 'worker'
+              AND u.account_status = 'active'
+              AND wp.total_reviews >= ${min_reviews}
+              AND wp.rating < ${threshold}
+        `;
+
+        for (const w of workers) {
+            await User.adminUpdate(w.id, {
+                account_status: 'suspended',
+                suspension_reason: `Auto-suspended: rating ${parseFloat(w.rating).toFixed(1)}/5 (below ${threshold}) based on ${w.total_reviews} reviews`,
+                suspended_until: null
+            });
+        }
+
+        res.json({
+            message: `Auto-suspended ${workers.length} worker(s) with rating below ${threshold}`,
+            suspended: workers.map(w => ({ name: w.name, email: w.email, rating: w.rating }))
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// ── Dashboard Stats ───────────────────────────────────────────────────────────
+
 exports.getDashboardStats = async (req, res) => {
     try {
-        const sql = getDb();
 
         // Total Users
         const usersCountRes = await sql`SELECT COUNT(*) as count FROM users WHERE role != 'admin'`;

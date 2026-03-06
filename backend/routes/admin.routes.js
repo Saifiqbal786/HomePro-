@@ -9,7 +9,8 @@ router.use(roleMiddleware('admin'));
 
 router.get('/stats', admin.getDashboardStats);
 router.get('/users', admin.getAllUsers);
-router.post('/add-user', admin.addUser);
+router.patch('/users/:id/moderate', admin.moderateUser);
+router.post('/workers/auto-suspend', admin.autoSuspendLowRatedWorkers);
 router.get('/analytics', admin.getRevenueAnalytics);
 
 module.exports = router;

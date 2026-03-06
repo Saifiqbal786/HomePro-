@@ -47,6 +47,20 @@ class User {
         await sql`UPDATE users SET is_online = ${isOnline ? 1 : 0} WHERE id = ${id}`;
     }
 
+    // Admin-only update — moderation fields
+    static async adminUpdate(id, fields) {
+        const sql = getDb();
+        const allowed = ['account_status', 'suspension_reason', 'suspended_until', 'is_verified'];
+        const updateData = {};
+        for (const [key, val] of Object.entries(fields)) {
+            if (allowed.includes(key)) updateData[key] = val;
+        }
+        if (Object.keys(updateData).length === 0) return this.findById(id);
+        updateData.updated_at = sql`CURRENT_TIMESTAMP`;
+        await sql`UPDATE users SET ${sql(updateData)} WHERE id = ${id}`;
+        return this.findById(id);
+    }
+
     static safeUser(user) {
         if (!user) return null;
         const { password, ...safe } = user;
