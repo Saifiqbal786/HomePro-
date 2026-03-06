@@ -51,24 +51,75 @@
     <script src="/src/assets/js/auth.js"></script>
     <script>
         if (!requireAuth() || !requireRole('worker')) throw 'Access denied';
+
+        function statusTimeline(status) {
+            const steps = [
+                { key: 'pending', label: 'Booked', icon: 'event_available' },
+                { key: 'accepted', label: 'Accepted', icon: 'thumb_up' },
+                { key: 'in_progress', label: 'In Progress', icon: 'engineering' },
+                { key: 'completed', label: 'Completed', icon: 'task_alt' },
+            ];
+            if (status === 'cancelled') {
+                return `<div class="flex items-center gap-2 mt-3 text-red-500 text-sm font-medium">
+                    <span class="material-symbols-outlined text-[18px]">cancel</span> This job was cancelled
+                </div>`;
+            }
+            const order = ['pending', 'accepted', 'in_progress', 'completed'];
+            const currentIdx = order.indexOf(status);
+            return `<div class="mt-4 pt-3 border-t border-slate-100">
+                <div class="flex items-center w-full">
+                    ${steps.map((s, i) => {
+                const done = i < currentIdx;
+                const active = i === currentIdx;
+                const dotColor = done ? 'bg-emerald-500' : active ? 'bg-primary animate-pulse' : 'bg-slate-200';
+                const labelColor = done ? 'text-emerald-600' : active ? 'text-primary font-semibold' : 'text-slate-400';
+                const lineColor = done ? 'bg-emerald-400' : 'bg-slate-200';
+                return `
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="flex items-center w-full">
+                                ${i > 0 ? `<div class="flex-1 h-0.5 ${lineColor} transition-all duration-500"></div>` : ''}
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full ${dotColor} flex items-center justify-center shadow-sm">
+                                    <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings:'FILL' 1">${s.icon}</span>
+                                </div>
+                                ${i < steps.length - 1 ? `<div class="flex-1 h-0.5 ${done ? 'bg-emerald-400' : 'bg-slate-200'} transition-all duration-500"></div>` : ''}
+                            </div>
+                            <p class="text-[10px] mt-1.5 ${labelColor} text-center leading-tight">${s.label}</p>
+                        </div>`;
+            }).join('')}
+                </div>
+            </div>`;
+        }
+
         async function loadJobs() {
             const data = await api.get('/tasks');
             const tasks = data.tasks || [];
-            const statusColors = { pending: 'bg-amber-100 text-amber-800', accepted: 'bg-blue-100 text-blue-800', in_progress: 'bg-green-100 text-green-800', completed: 'bg-emerald-100 text-emerald-800' };
-            if (tasks.length === 0) { document.getElementById('jobsList').innerHTML = '<p class="text-slate-400 text-center py-12">No jobs yet</p>'; return; }
+            if (tasks.length === 0) {
+                document.getElementById('jobsList').innerHTML = '<p class="text-slate-400 text-center py-12">No jobs yet</p>';
+                return;
+            }
             document.getElementById('jobsList').innerHTML = tasks.map(t => {
                 let actions = '';
                 if (t.status === 'pending') actions = `<button onclick="act('${t.id}','accept')" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90">Accept</button>`;
-                if (t.status === 'accepted') actions = `<button onclick="act('${t.id}','start')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">Start Timer</button>`;
+                if (t.status === 'accepted') actions = `<button onclick="act('${t.id}','start')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">Start Job</button>`;
                 if (t.status === 'in_progress') actions = `<button onclick="act('${t.id}','complete')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700">Mark Complete</button>`;
-                return `<div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex justify-between items-center">
-      <div><h3 class="font-bold">${t.service_type}</h3><p class="text-sm text-slate-500">${t.homeowner_name} • ${t.scheduled_date || 'TBD'} ${t.scheduled_time || ''}</p>
-      <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${statusColors[t.status] || ''}">${t.status.replace('_', ' ')}</span>
-      ${t.payment_amount ? `<span class="text-sm font-medium text-slate-900 ml-2">$${t.payment_amount}</span>` : ''}</div>
-      <div class="flex gap-2">${actions}<a href="/src/pages/chat/chat-page.html?userId=${t.homeowner_id}" class="border border-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50">Chat</a></div>
+                return `
+    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <h3 class="font-bold text-lg">${t.service_type}</h3>
+          <p class="text-sm text-slate-500">${t.homeowner_name} • ${t.scheduled_date || 'TBD'} ${t.scheduled_time || ''}</p>
+          ${t.payment_amount ? `<p class="text-sm font-bold text-slate-900 mt-0.5">$${t.payment_amount}</p>` : ''}
+        </div>
+        <div class="flex gap-2 items-center">
+          ${actions}
+          <a href="/src/pages/chat/chat-page.html?userId=${t.homeowner_id}" class="border border-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50">Chat</a>
+        </div>
+      </div>
+      ${statusTimeline(t.status)}
     </div>`;
             }).join('');
         }
+
         async function act(id, action) {
             try { await api.put(`/tasks/${id}/${action}`); showToast(`Task ${action}ed!`, 'success'); loadJobs(); }
             catch (err) { showToast(err.message, 'error'); }
