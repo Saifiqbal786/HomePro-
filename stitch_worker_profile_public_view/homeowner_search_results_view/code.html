@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Homeowner Search with Category Switcher</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15232f] px-6 lg:px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8 flex-1">
+<a class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-2xl">home_repair_service</span>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em] hidden sm:block">HomePro</h2>
+</a>
+<label class="flex flex-col flex-1 max-w-xl">
+<div class="flex w-full items-stretch rounded-lg h-10 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary overflow-hidden transition-all">
+<div class="flex items-center justify-center pl-4 pr-2 text-slate-400">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-slate-400 px-2 text-slate-900 dark:text-slate-100" placeholder="Search for plumbers, electricians..." value="Plumbers"/>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-end gap-6 flex-1">
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-lg">chat</span>
+                    Messages
+                </a>
+<a class="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-lg">calendar_month</span>
+                    My Bookings
+                </a>
+</nav>
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-2 border-transparent hover:border-primary cursor-pointer transition-all">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqx__qreVADXH7GiHuqLLv7bxhOlJL2PZObGoEdyqjX6DBsQ3dy2OPPo06VIGNeoGAtSjUaHuDVeKAjWgTx3bYEE3HCB68hsN7qosfWDjS6F4EEDBpa2ZB_dkphQOM4StH-uH7QGVNd11bu6FbnDqtYI1JBXbqqYQr2p3-R_8WnI3GVL5u0CjgfBKpaf_dCllQM07LCIpFW5ewPpxBDLiXfCBCOFAByvAlNYIArgINZkDIUFmHKhi3mQ9Bkb11ZKa8BeASrgeSJoo5"/>
+</div>
+</div>
+</header>
+<div class="bg-white dark:bg-[#15232f] border-b border-slate-200 dark:border-slate-800 sticky top-[65px] z-40">
+<div class="max-w-[1440px] mx-auto px-4 md:px-6">
+<div class="flex items-center overflow-x-auto no-scrollbar gap-2 py-1">
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-primary text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">plumbing</span>
+<span class="text-[12px] font-semibold">Plumbers</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">electrical_services</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Electricians</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">directions_car</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Car Wash</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">cleaning_services</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Cleaning</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">carpenter</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Carpenters</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">hvac</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">HVAC</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">format_paint</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Painters</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">grass</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Gardening</span>
+</a>
+<a class="flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-primary group transition-all" href="#">
+<span class="material-symbols-outlined mb-1">handyman</span>
+<span class="text-[12px] font-medium group-hover:font-semibold">Handyman</span>
+</a>
+</div>
+</div>
+</div>
+<main class="flex-1 flex flex-col md:flex-row max-w-[1440px] mx-auto w-full p-4 md:p-6 gap-6">
+<aside class="w-full md:w-64 lg:w-72 shrink-0 space-y-6 bg-white dark:bg-[#15232f] p-5 rounded-xl border border-slate-200 dark:border-slate-800 h-fit sticky top-[150px]">
+<div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+<h2 class="font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined">tune</span>
+                    Filters
+                </h2>
+<button class="text-sm text-primary hover:underline font-medium">Clear all</button>
+</div>
+<div class="space-y-4">
+<h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px]">location_on</span>
+                    Distance
+                </h3>
+<div class="space-y-3">
+<div class="flex justify-between text-sm text-slate-500">
+<span>0 mi</span>
+<span class="font-medium text-slate-900 dark:text-slate-100">25 mi</span>
+</div>
+<input class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" max="100" min="0" type="range" value="25"/>
+</div>
+</div>
+<div class="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+<h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                    Hourly Rate
+                </h3>
+<div class="flex items-center gap-3">
+<label class="flex-1">
+<span class="sr-only">Min Rate</span>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+<input class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Min" type="number" value="40"/>
+</div>
+</label>
+<span class="text-slate-400">-</span>
+<label class="flex-1">
+<span class="sr-only">Max Rate</span>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+<input class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Max" type="number" value="120"/>
+</div>
+</label>
+</div>
+</div>
+<div class="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+<h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px]">star</span>
+                    Minimum Rating
+                </h3>
+<div class="space-y-2">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" name="rating" type="radio"/>
+<div class="flex text-amber-400">
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100">4.0 &amp; up</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" name="rating" type="radio"/>
+<div class="flex text-amber-400">
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined filled text-lg">star</span>
+<span class="material-symbols-outlined filled text-lg">star_half</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100">3.5 &amp; up</span>
+</label>
+</div>
+</div>
+<div class="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+<h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                    Gender
+                </h3>
+<div class="space-y-2">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100">Female</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100">Male</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100">Any</span>
+</label>
+</div>
+</div>
+</aside>
+<div class="flex-1 space-y-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div>
+<h1 class="text-2xl sm:text-3xl font-bold leading-tight">Plumbers near you</h1>
+<p class="text-sm text-slate-500 mt-1">12 verified professionals found within 25 miles</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-sm text-slate-500">Sort by:</span>
+<select class="text-sm border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-[#15232f] py-1.5 pl-3 pr-8 focus:ring-primary focus:border-primary">
+<option>Recommended</option>
+<option>Highest Rated</option>
+<option>Lowest Price</option>
+<option>Distance</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+<div class="bg-white dark:bg-[#15232f] border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-lg transition-shadow flex flex-col h-full group">
+<div class="flex items-start gap-4">
+<div class="relative shrink-0">
+<img alt="Michael R." class="w-16 h-16 rounded-full object-cover border border-slate-200 dark:border-slate-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtodq4-H1_OP1pv7A28B7_Wwagefp4jXjRgFdEqp6ulHsSqCHo5fdj4VSK6hrR3zKT0wqwhrQi95NaK1wQbmuIhvmHCS1PAGWseocS3oUOHcQ1CoPcF_VzBom_AOoZIxH3ik2sAZ7BrsDX_XlKI939VUG-tUtDg-oV2SxwTmg7dBAIslrKwcUXyr93p_v11sWeACapXNVFOw6jKBbpfZAMM85h0h5PqtK1txORxin_kc2sYYIgaAUhKrfLzkEnic5XWBotp1LcTWEO"/>
+<div class="absolute -bottom-1 -right-1 bg-white dark:bg-[#15232f] rounded-full p-0.5">
+<span class="material-symbols-outlined text-green-500 text-sm filled" title="Verified">verified</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">Michael R.</h3>
+<p class="text-sm text-slate-500 truncate">Master Plumber</p>
+<div class="flex items-center gap-1 mt-1 text-sm">
+<span class="material-symbols-outlined text-amber-400 text-sm filled">star</span>
+<span class="font-medium">4.9</span>
+<span class="text-slate-400">(124 jobs)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-3 text-sm flex-1">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="font-medium text-slate-900 dark:text-slate-100">$85/hr</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">near_me</span>
+<span>3.2 miles</span>
+</div>
+</div>
+<button class="mt-5 w-full py-2.5 px-4 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-colors">
+                        View Profile
+                    </button>
+</div>
+<div class="bg-white dark:bg-[#15232f] border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-lg transition-shadow flex flex-col h-full group">
+<div class="flex items-start gap-4">
+<div class="relative shrink-0">
+<img alt="Sarah J." class="w-16 h-16 rounded-full object-cover border border-slate-200 dark:border-slate-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkjZy8B8wEBIb2651RIgerQOvvNnyZ8y-_Kr6aUx7zEIQz4cGe8pdTShR3deTsJWICR3Cejj6Hrs72XlYSOIxuqlIIlKqwU_83BD4K7ZEHrM9_cXJWz1Mytqvq_1uVH7rh0lvFxGnVd1AjZc04gH82rOdypqrwfCD-SzuJV-NUo2_K90RDARxRb-Pr6QtOLSbsOAjSYlwVYcbeYDjvGRElMA5fB57_45YgxGlcvRKskebCnB6oHxYH1QD9jz5KM_ps8pagHJWRT62p"/>
+<div class="absolute -bottom-1 -right-1 bg-white dark:bg-[#15232f] rounded-full p-0.5">
+<span class="material-symbols-outlined text-green-500 text-sm filled" title="Verified">verified</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">Sarah J.</h3>
+<p class="text-sm text-slate-500 truncate">Licensed Pipefitter</p>
+<div class="flex items-center gap-1 mt-1 text-sm">
+<span class="material-symbols-outlined text-amber-400 text-sm filled">star</span>
+<span class="font-medium">4.8</span>
+<span class="text-slate-400">(89 jobs)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-3 text-sm flex-1">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="font-medium text-slate-900 dark:text-slate-100">$75/hr</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">near_me</span>
+<span>5.1 miles</span>
+</div>
+</div>
+<button class="mt-5 w-full py-2.5 px-4 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-colors">
+                        View Profile
+                    </button>
+</div>
+<div class="bg-white dark:bg-[#15232f] border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-lg transition-shadow flex flex-col h-full group">
+<div class="flex items-start gap-4">
+<div class="relative shrink-0">
+<img alt="David L." class="w-16 h-16 rounded-full object-cover border border-slate-200 dark:border-slate-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw7IpD7i9OSbeGzAHdMiOQCZCCmhW42XaeloGqgHzz8TKsl2VZrjQbZSrhB2EKYPvC4f1a3UPv7PCkBGsCHq0PNMctN8kDR_BY9zx4qINaowzx6TpLmFDIHHRuIquTsZtKsOXq3fZI3DBbGVaERILWaUXcX9eqyrDZPfWQav2-trdlhMevc2XWPL6KSy6YI3q4W1jSQoOsaRzB0rNSNlqD5OrQt5atO7CeWiN0r4aaf9T7UPAAZ_fGKYJZq-mJHCmAggbu4VO4CAPi"/>
+<div class="absolute -bottom-1 -right-1 bg-white dark:bg-[#15232f] rounded-full p-0.5">
+<span class="material-symbols-outlined text-green-500 text-sm filled" title="Verified">verified</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">David L.</h3>
+<p class="text-sm text-slate-500 truncate">Emergency Plumber</p>
+<div class="flex items-center gap-1 mt-1 text-sm">
+<span class="material-symbols-outlined text-amber-400 text-sm filled">star</span>
+<span class="font-medium">4.7</span>
+<span class="text-slate-400">(210 jobs)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-3 text-sm flex-1">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="font-medium text-slate-900 dark:text-slate-100">$95/hr</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">near_me</span>
+<span>8.4 miles</span>
+</div>
+</div>
+<button class="mt-5 w-full py-2.5 px-4 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-colors">
+                        View Profile
+                    </button>
+</div>
+<div class="bg-white dark:bg-[#15232f] border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-lg transition-shadow flex flex-col h-full group">
+<div class="flex items-start gap-4">
+<div class="relative shrink-0">
+<img alt="Robert C." class="w-16 h-16 rounded-full object-cover border border-slate-200 dark:border-slate-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl8IfG25NHj3nugZvJvOFCbnSysVeQ9PyfzjbKIPqIjAETJL06LqmZ9-1LBWrp-AYBUuuN-S364TqFspZc4rQMijPaZYHQhbXTte4d3yr4ZzvtutkGsq9sRn-GQa8ladoQNknl3E3OBcDnlKQJVVgXnU2OWBdXxix6oaW2M0zFVQE5rgwkcI3T8EtCnFuYBmu6xNmujsc0Kr0mlcS5cFEBLkWwzEEq35kQ3XpoH7Nkq2pQLyVOIWsIPypvQuwJgV3ZbgCWWpkxYN-k"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">Robert C.</h3>
+<p class="text-sm text-slate-500 truncate">General Plumbing</p>
+<div class="flex items-center gap-1 mt-1 text-sm">
+<span class="material-symbols-outlined text-amber-400 text-sm filled">star</span>
+<span class="font-medium">4.5</span>
+<span class="text-slate-400">(45 jobs)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-3 text-sm flex-1">
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="font-medium text-slate-900 dark:text-slate-100">$65/hr</span>
+</div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-[18px]">near_me</span>
+<span>12.0 miles</span>
+</div>
+</div>
+<button class="mt-5 w-full py-2.5 px-4 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-colors">
+                        View Profile
+                    </button>
+</div>
+</div>
+<div class="flex justify-center pt-8 pb-12">
+<nav class="flex items-center gap-2">
+<button class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-primary text-white font-medium">1</button>
+<button class="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium">2</button>
+<button class="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium">3</button>
+<span class="text-slate-500 mx-1">...</span>
+<button class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

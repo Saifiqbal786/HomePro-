@@ -1,0 +1,31 @@
+{
+  "name": "home-services-platform",
+  "version": "1.0.0",
+  "description": "Professional home services platform connecting homeowners with verified workers",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "seed": "node database/seeders/seed.js",
+    "test": "node --experimental-vm-modules backend/tests/auth.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "sql.js": "^1.10.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "home-services",
+    "marketplace",
+    "workers",
+    "homeowners"
+  ],
+  "author": "",
+  "license": "ISC"
+}

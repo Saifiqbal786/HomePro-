@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Sign Up as Worker - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>tailwind.config = { theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8" }, fontFamily: { "display": ["Inter", "sans-serif"] } } } }</script>
+</head>
+
+<body class="bg-background-light font-display min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <a href="/src/pages/auth/login.html" class="flex items-center justify-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-primary text-4xl">home_repair_service</span>
+                <h1 class="text-3xl font-bold text-slate-900">HomePro</h1>
+            </a>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Create Worker Account</h2>
+            <p class="text-sm text-slate-500 mb-6">Start offering your professional services</p>
+            <div id="regError" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-4">
+            </div>
+            <form id="registerForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
+                        <input id="name" type="text" required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
+                            placeholder="Jane Doe" />
+                    </div>
+                    <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Gender</label>
+                        <select id="gender"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm">
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                    <input id="email" type="email" required
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm"
+                        placeholder="you@example.com" />
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
+                    <input id="phone" type="tel" class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm"
+                        placeholder="555-0200" />
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Location</label>
+                    <input id="location" type="text" class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm"
+                        placeholder="City, State" />
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Service Category</label>
+                    <select id="services" class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm">
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Car Wash">Car Wash</option>
+                        <option value="Cleaning">Cleaning</option>
+                        <option value="Carpentry">Carpentry</option>
+                        <option value="HVAC">HVAC</option>
+                        <option value="Painting">Painting</option>
+                        <option value="Gardening">Gardening</option>
+                        <option value="Handyman">Handyman</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Hourly Rate ($)</label>
+                        <input id="hourly_rate" type="number" min="10" required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm" placeholder="50" />
+                    </div>
+                    <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Years of Experience</label>
+                        <input id="experience" type="number" min="0"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm" placeholder="5" />
+                    </div>
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                    <input id="password" type="password" required minlength="6"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm"
+                        placeholder="Min 6 characters" />
+                </div>
+                <button type="submit" id="regBtn"
+                    class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-colors">Create
+                    Worker Account</button>
+            </form>
+            <p class="mt-4 text-center text-sm text-slate-500">Already have an account? <a
+                    href="/src/pages/auth/login.html" class="text-primary font-semibold hover:underline">Sign in</a></p>
+            <p class="mt-2 text-center text-sm text-slate-500">Looking for services? <a
+                    href="/src/pages/auth/signup-homeowner.html" class="text-primary font-semibold hover:underline">Sign
+                    up as Homeowner</a></p>
+        </div>
+    </div>
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('regBtn');
+            const errDiv = document.getElementById('regError');
+            btn.disabled = true; btn.textContent = 'Creating...';
+            errDiv.classList.add('hidden');
+            try {
+                await register({
+                    role: 'worker',
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    gender: document.getElementById('gender').value,
+                    location: document.getElementById('location').value,
+                    password: document.getElementById('password').value,
+                    services: [document.getElementById('services').value],
+                    hourly_rate: parseFloat(document.getElementById('hourly_rate').value),
+                    experience_years: parseInt(document.getElementById('experience').value) || 0,
+                });
+            } catch (err) {
+                errDiv.textContent = err.message; errDiv.classList.remove('hidden');
+                btn.disabled = false; btn.textContent = 'Create Worker Account';
+            }
+        });
+    </script>
+</body>
+
+</html>

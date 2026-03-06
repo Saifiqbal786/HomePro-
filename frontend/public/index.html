@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HomePro - Home Services Platform</title>
+  <meta name="description" content="Find verified home service professionals near you. Plumbing, electrical, cleaning, and more."/>
+  <link rel="stylesheet" href="/src/assets/css/main.css"/>
+  <script>
+    // Auto-redirect if logged in
+    const token = localStorage.getItem('homepro_token');
+    const user = token ? JSON.parse(localStorage.getItem('homepro_user') || 'null') : null;
+    if (token && user) {
+      window.location.href = user.role === 'worker' ? '/src/pages/worker/dashboard.html' : '/src/pages/homeowner/search-workers.html';
+    }
+  </script>
+</head>
+<body>
+  <script>window.location.href = '/src/pages/auth/login.html';</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Real-time Chat &amp; Job Booking Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen">
+<div class="flex flex-col h-screen">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-10 py-3 bg-white dark:bg-slate-900">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-slate-900 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M10.4485 13.8519C10.4749 13.9271 10.6203 14.246 11.379 14.7361C12.298 15.3298 13.7492 15.9145 15.6717 16.3735C18.0007 16.9296 20.8712 17.2655 24 17.2655C27.1288 17.2655 29.9993 16.9296 32.3283 16.3735C34.2508 15.9145 35.702 15.3298 36.621 14.7361C37.3796 14.246 37.5251 13.9271 37.5515 13.8519C37.5287 13.7876 37.4333 13.5973 37.0635 13.2931C36.5266 12.8516 35.6288 12.3647 34.343 11.9175C31.79 11.0295 28.1333 10.4437 24 10.4437C19.8667 10.4437 16.2099 11.0295 13.657 11.9175C12.3712 12.3647 11.4734 12.8516 10.9365 13.2931C10.5667 13.5973 10.4713 13.7876 10.4485 13.8519ZM37.5563 18.7877C36.3176 19.3925 34.8502 19.8839 33.2571 20.2642C30.5836 20.9025 27.3973 21.2655 24 21.2655C20.6027 21.2655 17.4164 20.9025 14.7429 20.2642C13.1498 19.8839 11.6824 19.3925 10.4436 18.7877V34.1275C10.4515 34.1545 10.5427 34.4867 11.379 35.027C12.298 35.6207 13.7492 36.2054 15.6717 36.6644C18.0007 37.2205 20.8712 37.5564 24 37.5564C27.1288 37.5564 29.9993 37.2205 32.3283 36.6644C34.2508 36.2054 35.702 35.6207 36.621 35.027C37.4573 34.4867 37.5485 34.1546 37.5563 34.1275V18.7877ZM41.5563 13.8546V34.1455C41.5563 36.1078 40.158 37.5042 38.7915 38.3869C37.3498 39.3182 35.4192 40.0389 33.2571 40.5551C30.5836 41.1934 27.3973 41.5564 24 41.5564C20.6027 41.5564 17.4164 41.1934 14.7429 40.5551C12.5808 40.0389 10.6502 39.3182 9.20848 38.3869C7.84205 37.5042 6.44365 36.1078 6.44365 34.1455L6.44365 13.8546C6.44365 12.2684 7.37223 11.0454 8.39581 10.2036C9.43325 9.3505 10.8137 8.67141 12.343 8.13948C15.4203 7.06909 19.5418 6.44366 24 6.44366C28.4582 6.44366 32.5797 7.06909 35.657 8.13948C37.1863 8.67141 38.5667 9.3505 39.6042 10.2036C40.6278 11.0454 41.5563 12.2684 41.5563 13.8546Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">ProHomeServices</h2>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Find Workers</a>
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">My Jobs</a>
+<a class="text-primary text-sm font-medium leading-normal relative" href="#">
+                        Messages
+                        <span class="absolute -top-1 -right-2 flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/50 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+</a>
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Profile</a>
+</div>
+<img alt="User profile picture" class="aspect-square bg-cover rounded-full size-10 object-cover border border-slate-200 dark:border-slate-700" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcNkIi9rDKxNSq5hM7NS-0gxpkiJO4KusWLUkSUMe-gNJHbUJdJgiZPDuNlM4-boxhJAhgVdsK4Mrfsox0ogBJJk7fB0KOLsyHE0v5xfwrXAh5g8DbWwmlA3PmB1EUVKR0ZgN8tj_5s_OC5DfaDI_y6ac-vcCNpuLQUoQRAR41O_tKveGJJoNh3oUS4q6Ikl70mBdUAbv3GCFux4UOApyNnKcCqt697_AznjU5weEFSH05yXwTo1tSJQYe3yw1q4MoBwlYA7lR86F6"/>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-[350px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full shrink-0">
+<div class="p-4 border-b border-slate-200 dark:border-slate-800">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary text-slate-900 dark:text-white placeholder-slate-500" placeholder="Search messages..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<div class="flex items-center gap-3 p-4 bg-primary/5 dark:bg-primary/10 border-l-4 border-primary cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="relative shrink-0">
+<img alt="John Smith profile" class="h-12 w-12 rounded-full object-cover" data-alt="John Smith profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDelIVj1DrCDUnvgEAjCvZATXRfNFd9jeJE00gFai8zMm57gDy9ZfsvbPjk_cazlBICVBtiTSQVq4pbY9qk_OxNpVFV27z5wcyN9VdRJmQaljwNZa8uEdg5KJdSAUDMSXGKhRye_kRtsl9eozzrjS7yNAaXpwF2BRly-O2D0nF-_tl67TBML998X3bONgzJef-XpM5MqJHodTTrhgv3Hv7c3eu8ipuZpTi1A-VShXjY1dZabgZvCdVQvmSimYH8NFTKTJcRWjCc0hxZ"/>
+<div class="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-semibold text-slate-900 dark:text-white truncate">John Smith</h3>
+<span class="text-xs text-primary font-medium">Just now</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-300 truncate">I can come over tomorrow at 10 AM to fix the leak.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4 border-l-4 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors border-b border-slate-100 dark:border-slate-800/50">
+<div class="relative shrink-0">
+<img alt="Sarah Johnson profile" class="h-12 w-12 rounded-full object-cover" data-alt="Sarah Johnson profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA7ImbJ2YhcZ9tB0oE4X_-9CMKhPSmJpA_a3aiXXGph1cEZVX81VXYtwCoB0oVT0VV_WWppKLxMmzpuF_g_6DYSh554GERhAP4JwnqttF_cO_osIOI_zm2J6Z51oMEjob4kODDRhYfAf4iippcS-g-VsoIbWXzDn_q4RuSIUtiTarXlzDp4C-EUZQQygJpTIvUesN0sufe7Tz_lXRHfolBO7NdByoVOu33Aw-b5SETMTOprIzqHR8qqYz8tAAuLBbxdO8Eg7-9p-4F"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-medium text-slate-900 dark:text-white truncate">Sarah Johnson</h3>
+<span class="text-xs text-slate-500">1h ago</span>
+</div>
+<p class="text-sm text-slate-500 truncate">Thanks for the quote, I'll let you know.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4 border-l-4 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors">
+<div class="relative shrink-0">
+<div class="h-12 w-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-lg font-medium text-slate-600 dark:text-slate-300">MD</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h3 class="font-medium text-slate-900 dark:text-white truncate">Mike Davis</h3>
+<span class="text-xs text-slate-500">Yesterday</span>
+</div>
+<p class="text-sm text-slate-500 truncate">The painting job looks great!</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col bg-white dark:bg-slate-950 h-full relative">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-10 sticky top-0">
+<div class="flex items-center gap-4">
+<img alt="John Smith profile" class="h-10 w-10 rounded-full object-cover" data-alt="John Smith profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh0BxjB8c7031SQg06Xcw970WKBXaSuegLDOJVm7-fJ1rk0aevGCGXxICCfHJUZY-zGHWYiMrHAALMOIbPkq39MfdhkjahGrDFF43Gu6IF_5OTozCuJcn60qh5RZsdxFPP1KBznNbpWY9rfIi2-m4b8waqb1Z9rooM0TxKh5GBBCtdx_Cl7Pgre2JeJrZAj4D67ozOS5RILFNUqyd5-PgSmivJMV3PIVV_VIeUI0Op7BLmmmAJCi-1aWNM27S_rIjghEvkFsvDKvCV"/>
+<div>
+<h2 class="font-semibold text-slate-900 dark:text-white">John Smith</h2>
+<p class="text-xs text-slate-500 flex items-center gap-1">
+<span class="h-2 w-2 bg-green-500 rounded-full inline-block"></span>
+                                Online • Plumber
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<div class="text-center">
+<span class="text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Today, 9:41 AM</span>
+</div>
+<div class="flex justify-end">
+<div class="max-w-[70%]">
+<div class="bg-primary text-white rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm">
+<p class="text-sm">Hi John, I have a leak under my kitchen sink that needs fixing. Are you available sometime this week?</p>
+</div>
+<div class="flex justify-end mt-1 items-center gap-1">
+<span class="text-[10px] text-slate-500">9:41 AM</span>
+<span class="material-symbols-outlined text-[14px] text-primary">done_all</span>
+</div>
+</div>
+</div>
+<div class="flex justify-start">
+<div class="flex gap-3 max-w-[70%]">
+<img alt="John Smith profile" class="h-8 w-8 rounded-full object-cover mt-1 shrink-0" data-alt="John Smith profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZBhBN0RN1hmlNsLOG_ScYuEE7Z2XjfIRLDVwrj_-sVBD_Rg8MmIgEJZTGdYoXrKE7r6p5sJcVTRgzvVyWAa7lduPMI6zzAQrEaZFC5XVNbGaollqxH0yZxRQuPtMyQ_OwYlL8AiNZQDjA-8Pu63ayE5vRL2CxRq7zhbVShPtk-3EWpy02CqZ-RquqXOwca20G4k14HgD8u0LKNa49LjXTlkoiowCDk6sT6o1J5_5K5sfNU2UEQbHGy7DTDPJF9JsvI5FwX7n27s8d"/>
+<div>
+<div class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl rounded-tl-sm px-4 py-2.5">
+<p class="text-sm">Hello! Yes, I can certainly help with that. Could you send me a quick picture of the setup underneath the sink?</p>
+</div>
+<div class="flex justify-start mt-1 items-center">
+<span class="text-[10px] text-slate-500">9:45 AM</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end">
+<div class="max-w-[70%]">
+<div class="bg-primary text-white rounded-2xl rounded-tr-sm p-1 shadow-sm mb-1">
+<img alt="Under sink pipes" class="rounded-xl max-h-48 object-cover w-full" data-alt="Under sink pipes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXkwHHCZeuF3S-A-3MwlpEmZTz9t-lDgogcA-Ue-K5k1t_NCTYRijEiGi1i6sk_2YK6XNqfwFCdypYGY8ghEApF19YDcuChgh6ysay8pROV1UwK0wXy-07GcFBX8BzbphO9CjBY7T0AmYxL4oviEKn265K35V5bN-m7aiUaweZ3J9GvSb0mpNmPOyPXCeyZaZxbycUpy5kWntvIg-RV83TkSVPEDisSoDHeTueXhaq5ztrIYPqiL4WRvh_0echkNaq6G6cI6b1JLDQ"/>
+</div>
+<div class="bg-primary text-white rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm">
+<p class="text-sm">Here you go. It seems to be coming from the U-bend area.</p>
+</div>
+<div class="flex justify-end mt-1 items-center gap-1">
+<span class="text-[10px] text-slate-500">9:48 AM</span>
+<span class="material-symbols-outlined text-[14px] text-primary">done_all</span>
+</div>
+</div>
+</div>
+<div class="flex justify-start">
+<div class="flex gap-3 max-w-[70%]">
+<img alt="John Smith profile" class="h-8 w-8 rounded-full object-cover mt-1 shrink-0" data-alt="John Smith profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFkoYizvYfYOdYmPBtCvVc51mXC26H4GgXf-zZA-ZFZ_BGx3nKzZDhlrYLNpoJ03-Zo3V7GsQY6r2QJs16FP0SZMPmMcauagKS7S8r9LdlnXgtogiBYGINsmKzW3Yv_HodXGYc6b3fSIqGXDMuxpB-lxHk7IO9NQFubzFIJzwL6ozYuZhwvYmXPmEZbo2LWNyktv_zuRealKDTQaffhxYPXZadgP-Fo0oWyWdhewJmGphpHf28WlfZtSkLl1xsZo888CEYXqS_29Vs"/>
+<div>
+<div class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl rounded-tl-sm px-4 py-2.5">
+<p class="text-sm">I see it. Looks like the P-trap seal might be worn out. It's a fairly straightforward fix. I can come over tomorrow at 10 AM to fix the leak. My standard rate for this is $85.</p>
+</div>
+<div class="flex justify-start mt-1 items-center">
+<span class="text-[10px] text-slate-500">9:52 AM</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-start items-center gap-3">
+<img alt="John Smith profile" class="h-8 w-8 rounded-full object-cover shrink-0" data-alt="John Smith profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUc_Lm3whT8V128SaGrXB7V92ifJNUzEduVY_W4Kz1eP4d2OuWi1C0JZTi4XSSW05oWXeQrJIKWyeaQib94hnocKCmmlPaJ39fp4nRnZqmVwoCC1RKgGVAstvHrkWi0-XtqndVs5YGjRPjTCIrtXnSlxM2Ein6-WN4bv7haWIKgI2qN3rcITI7dUG1PqDS1LkyVZh3qVHlXKH8kzYCFIaL5PZo2s6BKMDodzISKeVSr9Wb_XKqZ5bqU0cnnP8dMCGU4GaY3yffRZvh"/>
+<div class="bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1 items-center">
+<span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
+<span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+<span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800 rounded-xl p-2 border border-transparent focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<button class="p-2 text-slate-500 hover:text-primary transition-colors shrink-0">
+<span class="material-symbols-outlined text-[20px]">attach_file</span>
+</button>
+<textarea class="w-full bg-transparent border-none resize-none focus:ring-0 text-sm py-2 px-1 text-slate-900 dark:text-white placeholder-slate-500 max-h-32" placeholder="Type a message..." rows="1"></textarea>
+<button class="p-2 text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shrink-0 flex items-center justify-center h-9 w-9">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</main>
+<aside class="w-[320px] bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col h-full shrink-0 overflow-y-auto">
+<div class="p-6">
+<h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Job Details</h3>
+<div class="space-y-6">
+<div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="flex items-center gap-3 mb-4 text-primary">
+<span class="material-symbols-outlined">plumbing</span>
+<h4 class="font-medium text-slate-900 dark:text-white">Kitchen Sink Repair</h4>
+</div>
+<div class="space-y-3 text-sm">
+<div class="flex justify-between items-start">
+<span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">category</span> Service</span>
+<span class="font-medium text-right text-slate-900 dark:text-slate-200">Plumbing</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">event</span> Proposed Date</span>
+<span class="font-medium text-right text-slate-900 dark:text-slate-200">Tomorrow, 10:00 AM</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">location_on</span> Location</span>
+<span class="font-medium text-right text-slate-900 dark:text-slate-200">123 Main St, Apt 4B</span>
+</div>
+<div class="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+<span class="text-slate-500 font-medium">Estimated Cost</span>
+<span class="text-lg font-bold text-slate-900 dark:text-white">$85.00</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+                            Send Job Request
+                        </button>
+<p class="text-xs text-center text-slate-500 mt-2">Sending a request is not legally binding until accepted.</p>
+<div class="mt-8">
+<h4 class="text-sm font-semibold text-slate-900 dark:text-white mb-3 uppercase tracking-wider">Worker Profile</h4>
+<div class="flex items-start gap-3">
+<img alt="John Smith profile" class="h-12 w-12 rounded-lg object-cover" data-alt="John Smith profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCODpJc9H4vF4BIMsvA_nb_ZdeEYIYiorhu4gaTMDZgCg6Io2nG8Qo2KaftZa_sQwVvLOO4D0N10TOC4rDXdu2u2CznnrSWjmVj78ceBl2nuAXYRsjv1T8qOCXOV4-SEqizL2OE9FDUwUwvjASip5lAMT5raN188pVy4uJUHaIQu7bx9RxzHrMVIN09QxRo4nEzjm-Rp9ybHhW8vUe_sYgBLzPJWiKSzvWeDIleWLQlFAOs0mVwRAzuP0Ax58t0W4n0mDx0yHg8zAgM"/>
+<div>
+<p class="font-medium text-slate-900 dark:text-white text-sm">John Smith</p>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-yellow-400 fill-current">star</span>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">4.9</span>
+<span class="text-xs text-slate-500">(124 jobs)</span>
+</div>
+<span class="inline-block mt-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-primary text-[10px] font-medium rounded border border-blue-100 dark:border-blue-800">Verified Pro</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</body></html>

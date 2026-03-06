@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Find Workers - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }
+    </script>
+    <style type="text/tailwindcss">
+        .no-scrollbar::-webkit-scrollbar{display:none;}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+</style>
+</head>
+
+<body class="bg-background-light font-display text-slate-900">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- HEADER -->
+        <header
+            class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 bg-white px-6 lg:px-10 py-3 sticky top-0 z-50">
+            <div class="flex items-center gap-8 flex-1">
+                <a class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
+                    href="/src/pages/homeowner/search-workers.html">
+                    <span class="material-symbols-outlined text-2xl">home_repair_service</span>
+                    <h2 class="text-xl font-bold leading-tight tracking-[-0.015em] hidden sm:block">HomePro</h2>
+                </a>
+                <label class="flex flex-col flex-1 max-w-xl">
+                    <div
+                        class="flex w-full items-stretch rounded-lg h-10 border border-slate-200 bg-slate-50 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary overflow-hidden transition-all">
+                        <div class="flex items-center justify-center pl-4 pr-2 text-slate-400"><span
+                                class="material-symbols-outlined text-xl">search</span></div>
+                        <input id="searchInput"
+                            class="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-slate-400 px-2"
+                            placeholder="Search for plumbers, electricians..." />
+                    </div>
+                </label>
+            </div>
+            <div class="flex items-center justify-end gap-6 flex-1">
+                <nav class="hidden md:flex items-center gap-6">
+                    <a class="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2 text-slate-600"
+                        href="/src/pages/chat/chat-page.html">
+                        <span class="material-symbols-outlined text-lg">chat</span>Messages
+                    </a>
+                    <a class="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2 text-slate-600"
+                        href="/src/pages/homeowner/task-history.html">
+                        <span class="material-symbols-outlined text-lg">calendar_month</span>My Bookings
+                    </a>
+                </nav>
+                <div id="userAvatar"
+                    class="size-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-2 border-transparent hover:border-primary cursor-pointer transition-all"
+                    onclick="logout()">
+                    <span class="material-symbols-outlined text-slate-500">person</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CATEGORY TABS -->
+        <div class="bg-white border-b border-slate-200 sticky top-[65px] z-40">
+            <div class="max-w-[1440px] mx-auto px-4 md:px-6">
+                <div id="categoryTabs" class="flex items-center overflow-x-auto no-scrollbar gap-2 py-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <main class="flex-1 flex flex-col md:flex-row max-w-[1440px] mx-auto w-full p-4 md:p-6 gap-6">
+            <!-- FILTERS SIDEBAR -->
+            <aside
+                class="w-full md:w-64 lg:w-72 shrink-0 space-y-6 bg-white p-5 rounded-xl border border-slate-200 h-fit sticky top-[150px]">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                    <h2 class="font-bold text-lg flex items-center gap-2"><span
+                            class="material-symbols-outlined">tune</span>Filters</h2>
+                    <button onclick="clearFilters()" class="text-sm text-primary hover:underline font-medium">Clear
+                        all</button>
+                </div>
+                <!-- Distance -->
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700"><span
+                            class="material-symbols-outlined text-[20px]">location_on</span>Distance</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm text-slate-500"><span>0 mi</span><span id="distanceVal"
+                                class="font-medium text-slate-900">25 mi</span></div>
+                        <input id="distanceRange"
+                            class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                            max="100" min="0" type="range" value="25"
+                            oninput="document.getElementById('distanceVal').textContent=this.value+' mi'" />
+                    </div>
+                </div>
+                <!-- Hourly Rate -->
+                <div class="space-y-4 border-t border-slate-200 pt-4">
+                    <h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700"><span
+                            class="material-symbols-outlined text-[20px]">payments</span>Hourly Rate</h3>
+                    <div class="flex items-center gap-3">
+                        <label class="flex-1">
+                            <div class="relative"><span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                <input id="minRate"
+                                    class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-primary focus:border-primary"
+                                    placeholder="Min" type="number" />
+                            </div>
+                        </label>
+                        <span class="text-slate-400">-</span>
+                        <label class="flex-1">
+                            <div class="relative"><span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                <input id="maxRate"
+                                    class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-primary focus:border-primary"
+                                    placeholder="Max" type="number" />
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <!-- Rating -->
+                <div class="space-y-4 border-t border-slate-200 pt-4">
+                    <h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700"><span
+                            class="material-symbols-outlined text-[20px]">star</span>Minimum Rating</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="text-primary focus:ring-primary h-4 w-4" name="rating" type="radio" value="4"
+                                onchange="applyFilters()" />
+                            <span class="text-sm text-slate-600">⭐ 4.0 & up</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="text-primary focus:ring-primary h-4 w-4" name="rating" type="radio"
+                                value="3.5" onchange="applyFilters()" />
+                            <span class="text-sm text-slate-600">⭐ 3.5 & up</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="text-primary focus:ring-primary h-4 w-4" name="rating" type="radio" value="0"
+                                checked onchange="applyFilters()" />
+                            <span class="text-sm text-slate-600">Any rating</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Gender -->
+                <div class="space-y-4 border-t border-slate-200 pt-4">
+                    <h3 class="font-semibold text-sm flex items-center gap-2 text-slate-700"><span
+                            class="material-symbols-outlined text-[20px]">group</span>Gender</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 cursor-pointer"><input
+                                class="rounded text-primary focus:ring-primary h-4 w-4" type="radio" name="gender"
+                                value="" checked onchange="applyFilters()" /><span
+                                class="text-sm text-slate-600">Any</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer"><input
+                                class="rounded text-primary focus:ring-primary h-4 w-4" type="radio" name="gender"
+                                value="female" onchange="applyFilters()" /><span
+                                class="text-sm text-slate-600">Female</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer"><input
+                                class="rounded text-primary focus:ring-primary h-4 w-4" type="radio" name="gender"
+                                value="male" onchange="applyFilters()" /><span
+                                class="text-sm text-slate-600">Male</span></label>
+                    </div>
+                </div>
+                <button onclick="applyFilters()"
+                    class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 rounded-lg transition-colors mt-4">Apply
+                    Filters</button>
+            </aside>
+
+            <!-- RESULTS -->
+            <div class="flex-1 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 id="resultsTitle" class="text-2xl sm:text-3xl font-bold leading-tight">Workers near you</h1>
+                        <p id="resultsCount" class="text-sm text-slate-500 mt-1"></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-slate-500">Sort by:</span>
+                        <select id="sortBy" onchange="applyFilters()"
+                            class="text-sm border-slate-300 rounded-lg bg-white py-1.5 pl-3 pr-8 focus:ring-primary focus:border-primary">
+                            <option value="">Recommended</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="price_low">Lowest Price</option>
+                            <option value="price_high">Highest Price</option>
+                            <option value="jobs">Most Experience</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="workersGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+                <div id="pagination" class="flex justify-center pt-8 pb-12"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script src="/src/assets/js/notifications.js"></script>
+    <script>
+        if (!requireAuth()) throw 'Not authenticated';
+
+        const categories = [
+            { name: 'All', icon: 'apps', value: '' },
+            { name: 'Plumbing', icon: 'plumbing', value: 'Plumbing' },
+            { name: 'Electrical', icon: 'electrical_services', value: 'Electrical' },
+            { name: 'Car Wash', icon: 'directions_car', value: 'Car Wash' },
+            { name: 'Cleaning', icon: 'cleaning_services', value: 'Cleaning' },
+            { name: 'Carpentry', icon: 'carpenter', value: 'Carpentry' },
+            { name: 'HVAC', icon: 'hvac', value: 'HVAC' },
+            { name: 'Painting', icon: 'format_paint', value: 'Painting' },
+            { name: 'Gardening', icon: 'grass', value: 'Gardening' },
+            { name: 'Handyman', icon: 'handyman', value: 'Handyman' },
+        ];
+
+        let activeCategory = '';
+        let currentPage = 1;
+
+        // Render category tabs
+        const tabsEl = document.getElementById('categoryTabs');
+        categories.forEach(cat => {
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = `flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 ${cat.value === activeCategory ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-primary'} group transition-all`;
+            a.innerHTML = `<span class="material-symbols-outlined mb-1">${cat.icon}</span><span class="text-[12px] font-medium">${cat.name}</span>`;
+            a.onclick = (e) => { e.preventDefault(); activeCategory = cat.value; currentPage = 1; renderTabs(); applyFilters(); };
+            tabsEl.appendChild(a);
+        });
+
+        function renderTabs() {
+            tabsEl.querySelectorAll('a').forEach((a, i) => {
+                const isActive = categories[i].value === activeCategory;
+                a.className = `flex flex-col items-center justify-center min-w-[80px] py-2 px-3 border-b-2 ${isActive ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-primary'} group transition-all`;
+            });
+        }
+
+        // Load user avatar
+        const user = getUser();
+        if (user && user.avatar) {
+            document.getElementById('userAvatar').innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover" alt="Profile"/>`;
+        }
+
+        async function applyFilters() {
+            const params = new URLSearchParams();
+            if (activeCategory) params.set('category', activeCategory);
+            const minRate = document.getElementById('minRate').value;
+            const maxRate = document.getElementById('maxRate').value;
+            if (minRate) params.set('minRate', minRate);
+            if (maxRate) params.set('maxRate', maxRate);
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            if (rating && rating !== '0') params.set('minRating', rating);
+            const gender = document.querySelector('input[name="gender"]:checked')?.value;
+            if (gender) params.set('gender', gender);
+            const sortBy = document.getElementById('sortBy').value;
+            if (sortBy) params.set('sortBy', sortBy);
+            params.set('page', currentPage);
+
+            try {
+                const data = await api.get(`/workers?${params.toString()}`);
+                renderWorkers(data);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        function renderWorkers(data) {
+            const grid = document.getElementById('workersGrid');
+            const title = document.getElementById('resultsTitle');
+            const count = document.getElementById('resultsCount');
+
+            title.textContent = activeCategory ? `${activeCategory} professionals` : 'Workers near you';
+            count.textContent = `${data.total} verified professionals found`;
+
+            if (data.workers.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-500"><span class="material-symbols-outlined text-5xl mb-4 block">search_off</span><p class="text-lg font-medium">No workers found</p><p class="text-sm">Try adjusting your filters</p></div>';
+                return;
+            }
+
+            grid.innerHTML = data.workers.map(w => `
+    <div class="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-lg transition-shadow flex flex-col h-full group">
+      <div class="flex items-start gap-4">
+        <div class="relative shrink-0">
+          <img alt="${w.name}" class="w-16 h-16 rounded-full object-cover border border-slate-200" src="${w.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(w.name)}&background=137fec&color=fff`}"/>
+          ${w.is_verified ? '<div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5"><span class="material-symbols-outlined text-green-500 text-sm" style="font-variation-settings:\'FILL\' 1" title="Verified">verified</span></div>' : ''}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">${w.name}</h3>
+          <p class="text-sm text-slate-500 truncate">${JSON.parse(w.services || '[]').join(', ') || 'General Services'}</p>
+          <div class="flex items-center gap-1 mt-1 text-sm">
+            <span class="material-symbols-outlined text-amber-400 text-sm" style="font-variation-settings:'FILL' 1">star</span>
+            <span class="font-medium">${w.rating}</span>
+            <span class="text-slate-400">(${w.total_jobs} jobs)</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3 text-sm flex-1">
+        <div class="flex items-center gap-2 text-slate-600 bg-slate-50 p-2 rounded-lg">
+          <span class="material-symbols-outlined text-[18px]">payments</span>
+          <span class="font-medium text-slate-900">$${w.hourly_rate}/hr</span>
+        </div>
+        <div class="flex items-center gap-2 text-slate-600 bg-slate-50 p-2 rounded-lg">
+          <span class="material-symbols-outlined text-[18px]">work_history</span>
+          <span>${w.experience_years}yr exp</span>
+        </div>
+      </div>
+      <a href="/src/pages/homeowner/worker-profile.html?id=${w.worker_id}" class="mt-5 w-full py-2.5 px-4 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-colors text-center block">
+        View Profile
+      </a>
+    </div>
+  `).join('');
+
+            // Pagination
+            const pag = document.getElementById('pagination');
+            if (data.totalPages > 1) {
+                let html = '<nav class="flex items-center gap-2">';
+                html += `<button onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50"><span class="material-symbols-outlined">chevron_left</span></button>`;
+                for (let i = 1; i <= data.totalPages; i++) {
+                    html += `<button onclick="goPage(${i})" class="w-10 h-10 rounded-lg ${i === currentPage ? 'bg-primary text-white' : 'border border-slate-200 hover:bg-slate-50'} font-medium">${i}</button>`;
+                }
+                html += `<button onclick="goPage(${currentPage + 1})" ${currentPage === data.totalPages ? 'disabled' : ''} class="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50"><span class="material-symbols-outlined">chevron_right</span></button>`;
+                html += '</nav>';
+                pag.innerHTML = html;
+            } else { pag.innerHTML = ''; }
+        }
+
+        function goPage(p) { currentPage = p; applyFilters(); window.scrollTo(0, 0); }
+        function clearFilters() {
+            document.getElementById('minRate').value = '';
+            document.getElementById('maxRate').value = '';
+            document.getElementById('distanceRange').value = 25;
+            document.getElementById('distanceVal').textContent = '25 mi';
+            document.querySelector('input[name="rating"][value="0"]').checked = true;
+            document.querySelector('input[name="gender"][value=""]').checked = true;
+            document.getElementById('sortBy').value = '';
+            activeCategory = ''; currentPage = 1; renderTabs(); applyFilters();
+        }
+
+        // Search input
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => { applyFilters(); }, 300);
+        });
+
+        // Initial load
+        applyFilters();
+        startNotifPolling();
+    </script>
+</body>
+
+</html>

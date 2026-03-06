@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Worker Profile Public View</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-10 py-3 bg-white dark:bg-slate-900 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6 material-symbols-outlined">home_repair_service</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">ProHomeServices</h2>
+</div>
+<label class="flex flex-col min-w-40 !h-10 max-w-64 hidden md:flex">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-500 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border-r-0 material-symbols-outlined">search</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-500 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search" value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9 hidden lg:flex">
+<a class="text-slate-900 dark:text-slate-100 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Find Workers</a>
+<a class="text-slate-900 dark:text-slate-100 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">My Jobs</a>
+<a class="text-slate-900 dark:text-slate-100 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Messages</a>
+</div>
+<div class="flex gap-2 items-center">
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User profile picture placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA2ma-l22G87AXtr1vbeCZa1bYOnKYRlI5Egikmnw5I1FkYU0TqXVI5xo9zP_7De8AD-Chm8t5qNgjt4BV6li05gTRqcZSbj8b3QYNTZwYFvTEMBUp5zKFvBL3hoUhVX7oK-lVWmQqRf5AYNUos1sQH7MtX-jeXYddOYv3LnELbMmMlyTKv5O8aVB3SgR6DMhO3gp7kY08-8ITghIjVKn1wP6w70coC8D33LSpCcJwxEtL-sd8iFXKcNUhIpjlAt0v6B66hJLY2pXbH");'></div>
+</div>
+</div>
+</header>
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col max-w-[1200px] w-full flex-1 gap-8">
+<!-- Profile Header -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-6 items-center md:items-start justify-between">
+<div class="flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
+<div class="relative">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-32 border-4 border-white dark:border-slate-900 shadow-md" data-alt="John Doe profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC1hsoNdFnWHIdK9P2G4aqsJs1RT3dDI6qh3wZwXgfQTGvTl8oU_2Vao0xyeU9jUV6-istYSzZWp3o5CQmmh4JQeM-GDjB_Lqv06ZxtVfPOTOEodo9XNGESnBZt5ArpmkvJbjJL_Y5sKSqsV0VnproKCrPLvz_ZYAsoM0Hb4nWm3t90iBP2TRXnUW8RH2ED7UfdRNj6iS-NuTQ8XCNONDaFfvvjGvXF8RsP-GCcrki5t9jVvUaiWsF9PZgpEey1XVjytmgW2zYu2avf");'></div>
+<div class="absolute bottom-0 right-0 bg-white dark:bg-slate-900 rounded-full p-1">
+<span class="material-symbols-outlined text-primary text-2xl" title="Verified Professional">verified</span>
+</div>
+</div>
+<div class="flex flex-col justify-center h-full pt-2">
+<h1 class="text-slate-900 dark:text-white text-3xl font-bold leading-tight tracking-[-0.015em] flex items-center justify-center md:justify-start gap-2">
+                                John Doe
+                            </h1>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium leading-normal mt-1 flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-sm">plumbing</span>
+                                Master Plumber
+                            </p>
+<div class="flex items-center gap-4 mt-3 text-slate-500 dark:text-slate-400 text-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">work_history</span> 12 Years Exp.</span>
+<span>•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Austin, TX</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3 w-full md:w-auto mt-4 md:mt-0">
+<button class="flex items-center justify-center rounded-lg h-12 px-8 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors w-full gap-2 shadow-sm">
+<span class="material-symbols-outlined">chat</span>
+                            Message John
+                        </button>
+<button class="flex items-center justify-center rounded-lg h-12 px-8 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-base font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors w-full gap-2">
+<span class="material-symbols-outlined">favorite</span>
+                            Save Profile
+                        </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: About & Skills -->
+<div class="lg:col-span-2 flex flex-col gap-8">
+<!-- About Section -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">person</span>
+                                About Me
+                            </h2>
+<p class="text-slate-600 dark:text-slate-300 text-base font-normal leading-relaxed">
+                                Hi, I'm John. I've been a professional plumber for over a decade. I specialize in residential plumbing, including leak repairs, pipe installations, and complete bathroom remodels. I pride myself on prompt, reliable service and ensuring every job is completed to the highest standard. Customer satisfaction is my top priority, and I always leave a workspace cleaner than I found it. Fully licensed, bonded, and insured in the state of Texas.
+                            </p>
+</div>
+<!-- Skills Section -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">handyman</span>
+                                Skills &amp; Expertise
+                            </h2>
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Pipe Repair</span>
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Water Heater Installation</span>
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Drain Cleaning</span>
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Bathroom Remodeling</span>
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Leak Detection</span>
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Fixture Replacement</span>
+<span class="bg-primary/10 text-primary dark:bg-primary/20 px-3 py-1.5 rounded-full text-sm font-medium">Emergency Services</span>
+</div>
+</div>
+<!-- Portfolio Section -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">photo_library</span>
+                                    Portfolio
+                                </h2>
+<a class="text-primary text-sm font-medium hover:underline" href="#">View All</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<div class="bg-slate-200 dark:bg-slate-700 aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity" data-alt="Completed modern bathroom remodel" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA-YPqWSKhehjaoRZIlMs0BppMr0uHGi_G7U28L5xfchdF6ybRDtzGlpHLJTtv7hSFLg3ydDwy6erYSCKcEA-2zk-DAlk3l1Qj4JCphoQ65DxHmOKXCUdIKg1xBvoIkBLnJCt-ziwcWzHmyHH2XgJKXr1J85VZeZNrs6iEHyHpFOQxYIAPxyP3C-iYQnCx_IpU-OKQnO_rQn0GAQgwzvIu5wLk1QwejPHXLiM9Z9-UUuv9zduCBxT6WyUxeIGKZB412W1ZkMk0Q2njN");'></div>
+<div class="bg-slate-200 dark:bg-slate-700 aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity" data-alt="Newly installed tankless water heater" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8xs7qCdPYUYmWOvjPnYPS6kz4KXVxTJCmi8O7-7bzXPazLzrFeVWSiTni3hjEEsCdUTX6GNw0Vv71tzyu40rDFUtsoaSxfG4HHA99afBWhUXW3K6XShureB1xmZBfFf88Y1BWYfxAivL_W6PnduJg_qa6PUtSfK2FvWlBWeCBERlhPVbmIwdw7YpQITh9PXsdm9gQX6ple6uJJHWZ1lmxoqMnGbnqENSq4DuSbU9HU2XsOCmm4Pgk5sppytwZO_xH0wbzRrb2sT0g");'></div>
+<div class="bg-slate-200 dark:bg-slate-700 aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity" data-alt="Repaired under-sink plumbing pipes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuASD6p3kfAcvT8Rli_ThcWtRRv-wQcrfcWE77klxPSi9wo2IV6Ia6TR9tgfQSNGx5fd6-fZrDbC7pNKajJ2yz0ohbMAjxUeGxwFHP9eL0QLt9uI7-sazh7_svAnGxEdEQCSk5UOVgcql_bhAaxHnisbQs9bWBJsqVIyojlBP5jJKB1JJAn9uoGn8NIKPb-etumehWqZ0a52JdM8rN70FIz6KcQsnnTy3i-F44VCHmSLHhZRfMNgy5RnpYLPznkCxStPhZcRPE81jDzY");'></div>
+</div>
+</div>
+</div>
+<!-- Right Column: Stats & Reviews Summary -->
+<div class="flex flex-col gap-8">
+<!-- Quick Stats -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">Quick Stats</h2>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+<span class="text-slate-700 dark:text-slate-300 font-medium">Jobs Completed</span>
+</div>
+<span class="text-slate-900 dark:text-white font-bold text-lg">342</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">group_add</span>
+</div>
+<span class="text-slate-700 dark:text-slate-300 font-medium">Repeat Clients</span>
+</div>
+<span class="text-slate-900 dark:text-white font-bold text-lg">89</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<span class="text-slate-700 dark:text-slate-300 font-medium">Avg. Response Time</span>
+</div>
+<span class="text-slate-900 dark:text-white font-bold text-lg">&lt; 1 hr</span>
+</div>
+</div>
+</div>
+<!-- Credentials/Badges -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">Credentials</h2>
+<ul class="flex flex-col gap-3">
+<li class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+                                    Background Checked
+                                </li>
+<li class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+                                    Licensed (TX-#PL12345)
+                                </li>
+<li class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+                                    Fully Insured
+                                </li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Login - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>
+        tailwind.config = { theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8" }, fontFamily: { "display": ["Inter", "sans-serif"] } } } }
+    </script>
+</head>
+
+<body class="bg-background-light font-display min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-primary text-4xl">home_repair_service</span>
+                <h1 class="text-3xl font-bold text-slate-900">HomePro</h1>
+            </div>
+            <p class="text-slate-500">Find trusted home service professionals</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-900 mb-6">Welcome back</h2>
+            <div id="loginError"
+                class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-4"></div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Email address</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">mail</span>
+                        <input id="email" type="email" required
+                            class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                            placeholder="you@example.com" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">lock</span>
+                        <input id="password" type="password" required
+                            class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                            placeholder="Enter your password" />
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn"
+                    class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-xl">login</span>
+                    Sign In
+                </button>
+            </form>
+            <div class="mt-6 text-center text-sm text-slate-500">
+                Don't have an account?
+                <a href="/src/pages/auth/signup-homeowner.html" class="text-primary font-semibold hover:underline">Sign
+                    up as Homeowner</a>
+                or
+                <a href="/src/pages/auth/signup-worker.html" class="text-primary font-semibold hover:underline">as
+                    Worker</a>
+            </div>
+
+            <!-- Demo Credentials -->
+            <div class="mt-6 pt-6 border-t border-slate-100">
+                <p class="text-xs text-slate-400 text-center mb-3">Demo accounts (password: <code
+                        class="bg-slate-100 px-1.5 py-0.5 rounded">password123</code>)</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="fillDemo('alex@example.com')"
+                        class="text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-2 px-3 text-slate-600 transition-colors">
+                        🏠 Homeowner
+                    </button>
+                    <button onclick="fillDemo('michael@example.com')"
+                        class="text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-2 px-3 text-slate-600 transition-colors">
+                        🔧 Worker
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (isLoggedIn()) {
+            const u = getUser();
+            redirectByRole(u?.role || 'homeowner');
+        }
+
+        function fillDemo(email) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = 'password123';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const errDiv = document.getElementById('loginError');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div>';
+            errDiv.classList.add('hidden');
+            try {
+                await login(
+                    document.getElementById('email').value,
+                    document.getElementById('password').value
+                );
+            } catch (err) {
+                errDiv.textContent = err.message;
+                errDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined text-xl">login</span> Sign In';
+            }
+        });
+    </script>
+</body>
+
+</html>

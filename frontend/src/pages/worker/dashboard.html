@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Worker Dashboard - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- SIDEBAR -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col h-full overflow-y-auto">
+            <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-200">
+                <span class="material-symbols-outlined text-primary text-2xl">home_repair_service</span>
+                <h2 class="text-xl font-bold">HomePro</h2>
+            </div>
+            <div class="flex flex-col p-6 border-b border-slate-200">
+                <div class="flex items-center gap-4">
+                    <div id="sidebarAvatar" class="rounded-full w-12 h-12 bg-slate-200 overflow-hidden"></div>
+                    <div>
+                        <h1 id="sidebarName" class="text-base font-semibold">Loading...</h1>
+                        <p id="sidebarRole" class="text-slate-500 text-sm font-medium"></p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium"
+                    href="/src/pages/worker/dashboard.html">
+                    <span class="material-symbols-outlined">home</span>Dashboard
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/tasks.html">
+                    <span class="material-symbols-outlined">work</span>My Jobs
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/earnings.html">
+                    <span class="material-symbols-outlined">payments</span>Earnings
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/profile-edit.html">
+                    <span class="material-symbols-outlined">person</span>Profile
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/chat/chat-page.html">
+                    <span class="material-symbols-outlined">chat</span>Messages
+                    <span id="msgBadge"
+                        class="ml-auto bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                </a>
+            </nav>
+            <div class="p-4 mt-auto">
+                <a onclick="logout()"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-red-600 font-medium transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined">logout</span>Log Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+                <div class="flex items-center justify-between px-8 py-4">
+                    <div class="flex-1">
+                        <div class="relative max-w-md">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                            <input
+                                class="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent focus:border-primary focus:ring-primary rounded-lg text-sm placeholder-slate-500"
+                                placeholder="Search jobs, clients..." type="text" />
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button
+                            class="relative p-2 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100">
+                            <span class="material-symbols-outlined">notifications</span>
+                            <span
+                                class="notif-badge absolute top-1 right-1 min-w-[10px] h-[10px] bg-red-500 rounded-full border-2 border-white text-[0px] hidden"></span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-8 max-w-7xl mx-auto space-y-8">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+                    <p id="welcomeMsg" class="text-slate-500 mt-1">Welcome back! Here's what's happening today.</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div id="statsCards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 animate-pulse">
+                        <div class="h-24 bg-slate-100 rounded"></div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 animate-pulse">
+                        <div class="h-24 bg-slate-100 rounded"></div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 animate-pulse">
+                        <div class="h-24 bg-slate-100 rounded"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <!-- Upcoming Jobs -->
+                    <div class="xl:col-span-2">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="flex items-center justify-between p-6 border-b border-slate-200">
+                                <h2 class="text-xl font-bold">Upcoming Jobs</h2>
+                                <a href="/src/pages/worker/tasks.html"
+                                    class="text-sm font-medium text-primary hover:text-primary/80">View All</a>
+                            </div>
+                            <div id="jobsTable" class="overflow-x-auto">
+                                <div class="p-8 text-center text-slate-400">
+                                    <div class="spinner mx-auto mb-4" style="width:24px;height:24px;border-width:2px;">
+                                    </div>Loading...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Reviews -->
+                    <div>
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h2 class="text-lg font-bold mb-6">Recent Reviews</h2>
+                            <div id="reviewsList" class="space-y-5">
+                                <div class="animate-pulse">
+                                    <div class="h-16 bg-slate-100 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script src="/src/assets/js/notifications.js"></script>
+    <script>
+        if (!requireAuth() || !requireRole('worker')) throw 'Access denied';
+
+        const user = getUser();
+        document.getElementById('sidebarName').textContent = user.name;
+        document.getElementById('sidebarRole').textContent = 'Service Professional';
+        document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.name.split(' ')[0]}! Here's what's happening today.`;
+        if (user.avatar) document.getElementById('sidebarAvatar').innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover"/>`;
+
+        async function loadDashboard() {
+            try {
+                // Load stats
+                const tasks = await api.get('/tasks');
+                const allTasks = tasks.tasks || [];
+                const active = allTasks.filter(t => ['pending', 'accepted', 'in_progress'].includes(t.status));
+                const completed = allTasks.filter(t => t.status === 'completed');
+                const totalEarnings = completed.reduce((s, t) => s + (t.payment_amount || 0), 0);
+
+                // Load profile for rating
+                const profileData = await api.get(`/workers/${user.id}`);
+                const rating = profileData.profile?.rating || 0;
+
+                document.getElementById('statsCards').innerHTML = `
+      <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div class="flex justify-between items-start mb-4">
+          <div class="p-3 bg-primary/10 rounded-lg text-primary"><span class="material-symbols-outlined text-2xl">account_balance_wallet</span></div>
+          <span class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md"><span class="material-symbols-outlined text-[16px]">trending_up</span>Earned</span>
+        </div>
+        <p class="text-slate-500 text-sm font-medium mb-1">Total Earnings</p>
+        <p class="text-3xl font-bold tracking-tight">$${totalEarnings.toFixed(2)}</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div class="flex justify-between items-start mb-4">
+          <div class="p-3 bg-amber-100 rounded-lg text-amber-600"><span class="material-symbols-outlined text-2xl">star</span></div>
+        </div>
+        <p class="text-slate-500 text-sm font-medium mb-1">Average Rating</p>
+        <p class="text-3xl font-bold tracking-tight">${rating}<span class="text-lg text-slate-500 font-normal ml-1">/ 5.0</span></p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div class="flex justify-between items-start mb-4">
+          <div class="p-3 bg-indigo-100 rounded-lg text-indigo-600"><span class="material-symbols-outlined text-2xl">handyman</span></div>
+        </div>
+        <p class="text-slate-500 text-sm font-medium mb-1">Active Jobs</p>
+        <p class="text-3xl font-bold tracking-tight">${active.length}</p>
+      </div>
+    `;
+
+                // Render upcoming jobs table
+                const upcoming = allTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled').slice(0, 5);
+                if (upcoming.length === 0) {
+                    document.getElementById('jobsTable').innerHTML = '<div class="p-8 text-center text-slate-400">No upcoming jobs</div>';
+                } else {
+                    document.getElementById('jobsTable').innerHTML = `
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+            <tr><th class="px-6 py-4">Client</th><th class="px-6 py-4">Service</th><th class="px-6 py-4">Date & Time</th><th class="px-6 py-4">Status</th><th class="px-6 py-4">Action</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            ${upcoming.map(t => {
+                        const initials = t.homeowner_name.split(' ').map(n => n[0]).join('');
+                        const statusColors = { pending: 'bg-amber-100 text-amber-800', accepted: 'bg-blue-100 text-blue-800', in_progress: 'bg-green-100 text-green-800' };
+                        let actionBtn = '';
+                        if (t.status === 'pending') actionBtn = `<button onclick="taskAction('${t.id}','accept')" class="text-xs bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-primary/90">Accept</button>`;
+                        if (t.status === 'accepted') actionBtn = `<button onclick="taskAction('${t.id}','start')" class="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700">Start</button>`;
+                        if (t.status === 'in_progress') actionBtn = `<button onclick="taskAction('${t.id}','complete')" class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700">Complete</button>`;
+                        return `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
+                  <div class="bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">${initials}</div>${t.homeowner_name}
+                </td>
+                <td class="px-6 py-4">${t.service_type}</td>
+                <td class="px-6 py-4"><div class="flex flex-col"><span class="text-slate-900 font-medium">${t.scheduled_date || 'TBD'}</span><span class="text-xs text-slate-500">${t.scheduled_time || ''}</span></div></td>
+                <td class="px-6 py-4"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[t.status] || 'bg-slate-100 text-slate-800'}">${t.status.replace('_', ' ')}</span></td>
+                <td class="px-6 py-4">${actionBtn}</td>
+              </tr>`;
+                    }).join('')}
+          </tbody>
+        </table>
+      `;
+                }
+
+                // Load reviews
+                const reviewsData = await api.get(`/reviews/worker/${user.id}`);
+                const reviews = reviewsData.reviews || [];
+                if (reviews.length === 0) {
+                    document.getElementById('reviewsList').innerHTML = '<p class="text-sm text-slate-400">No reviews yet</p>';
+                } else {
+                    document.getElementById('reviewsList').innerHTML = reviews.slice(0, 3).map(r => `
+        <div class="pb-5 border-b border-slate-100 last:border-0 last:pb-0">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-medium text-sm">${r.homeowner_name}</span>
+            <div class="flex text-amber-400">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+          </div>
+          <p class="text-sm text-slate-600 line-clamp-2">${r.comment || ''}</p>
+          <span class="text-xs text-slate-400 mt-2 block">${new Date(r.created_at).toLocaleDateString()}</span>
+        </div>
+      `).join('');
+                }
+
+            } catch (err) { console.error('Dashboard load error:', err); }
+        }
+
+        async function taskAction(taskId, action) {
+            try {
+                await api.put(`/tasks/${taskId}/${action}`);
+                showToast(`Task ${action}ed successfully!`, 'success');
+                loadDashboard();
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        loadDashboard();
+        startNotifPolling();
+    </script>
+</body>
+
+</html>

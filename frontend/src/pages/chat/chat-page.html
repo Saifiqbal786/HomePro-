@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Messages - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body class="bg-background-light text-slate-900 font-display min-h-screen">
+    <div class="flex flex-col h-screen">
+        <!-- HEADER -->
+        <header class="flex items-center justify-between border-b border-slate-200 px-10 py-3 bg-white shrink-0">
+            <div class="flex items-center gap-8">
+                <a class="flex items-center gap-2 text-primary" href="#">
+                    <span class="material-symbols-outlined text-2xl">home_repair_service</span>
+                    <h2 class="text-xl font-bold">HomePro</h2>
+                </a>
+            </div>
+            <div class="flex items-center gap-9">
+                <a id="navSearchLink" class="text-slate-600 hover:text-primary text-sm font-medium" href="#">Find
+                    Workers</a>
+                <a id="navJobsLink" class="text-slate-600 hover:text-primary text-sm font-medium" href="#">My Jobs</a>
+                <a class="text-primary text-sm font-medium relative" href="/src/pages/chat/chat-page.html">Messages</a>
+                <div id="userAvatar" class="size-10 rounded-full bg-slate-200 overflow-hidden cursor-pointer"
+                    onclick="logout()"></div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- CONVERSATIONS LIST -->
+            <aside id="convList" class="w-[350px] bg-white border-r border-slate-200 flex flex-col h-full shrink-0">
+                <div class="p-4 border-b border-slate-200">
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input id="searchConv"
+                            class="w-full bg-slate-100 border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary placeholder-slate-500"
+                            placeholder="Search messages..." type="text" />
+                    </div>
+                </div>
+                <div id="conversations" class="flex-1 overflow-y-auto">
+                    <div class="p-8 text-center text-slate-400">
+                        <div class="spinner mx-auto mb-4" style="width:24px;height:24px;border-width:2px;"></div>
+                        Loading...
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CHAT AREA -->
+            <main id="chatArea" class="flex-1 flex flex-col bg-white h-full relative">
+                <div class="flex-1 flex items-center justify-center text-slate-400">
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-6xl mb-4 block text-slate-300">chat</span>
+                        <p class="text-lg font-medium">Select a conversation</p>
+                        <p class="text-sm">Choose from your existing conversations or start a new one</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script>
+        if (!requireAuth()) throw 'Auth required';
+        const currentUser = getUser();
+        const isWorker = currentUser.role === 'worker';
+
+        // Fix nav links based on role
+        if (isWorker) {
+            document.getElementById('navSearchLink').href = '/src/pages/worker/dashboard.html';
+            document.getElementById('navSearchLink').textContent = 'Dashboard';
+            document.getElementById('navJobsLink').href = '/src/pages/worker/tasks.html';
+        } else {
+            document.getElementById('navSearchLink').href = '/src/pages/homeowner/search-workers.html';
+            document.getElementById('navJobsLink').href = '/src/pages/homeowner/task-history.html';
+        }
+
+        let activeConvUserId = new URLSearchParams(window.location.search).get('userId') || null;
+        let socket = null;
+
+        // Init Socket
+        function initSocket() {
+            socket = io(window.location.origin, { auth: { token: getToken() } });
+            socket.on('connect', () => console.log('Chat connected'));
+            socket.on('newMessage', (msg) => {
+                if (msg.sender_id === activeConvUserId) {
+                    appendMessage(msg, false);
+                    api.put(`/messages/${msg.sender_id}`).catch(() => { });
+                }
+                loadConversations();
+            });
+            socket.on('userTyping', (data) => {
+                const ind = document.getElementById('typingIndicator');
+                if (ind && data.userId === activeConvUserId) {
+                    ind.style.display = data.typing ? 'flex' : 'none';
+                }
+            });
+        }
+
+        async function loadConversations() {
+            try {
+                const data = await api.get('/messages/conversations');
+                renderConversations(data.conversations);
+            } catch (err) { console.error(err); }
+        }
+
+        function renderConversations(convs) {
+            const el = document.getElementById('conversations');
+            if (convs.length === 0) {
+                el.innerHTML = '<div class="p-8 text-center text-slate-400">No conversations yet</div>';
+                return;
+            }
+            el.innerHTML = convs.map(c => `
+    <div onclick="openConversation('${c.other_user_id}', '${c.other_user_name}', '${c.other_user_avatar || ''}', ${c.other_user_online || 0})"
+      class="flex items-center gap-3 p-4 ${c.other_user_id === activeConvUserId ? 'bg-primary/5 border-l-4 border-primary' : 'border-l-4 border-transparent hover:bg-slate-50'} cursor-pointer transition-colors">
+      <div class="relative shrink-0">
+        <img src="${c.other_user_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.other_user_name)}&background=137fec&color=fff`}" class="h-12 w-12 rounded-full object-cover"/>
+        ${c.other_user_online ? '<div class="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white rounded-full"></div>' : ''}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-baseline mb-0.5">
+          <h3 class="font-semibold truncate ${c.unread_count > 0 ? 'text-slate-900' : 'text-slate-700'}">${c.other_user_name}</h3>
+          <span class="text-xs ${c.unread_count > 0 ? 'text-primary font-medium' : 'text-slate-500'}">${timeAgo(c.last_message_time)}</span>
+        </div>
+        <p class="text-sm text-slate-500 truncate">${c.last_message}</p>
+      </div>
+      ${c.unread_count > 0 ? `<span class="bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full">${c.unread_count}</span>` : ''}
+    </div>
+  `).join('');
+        }
+
+        async function openConversation(userId, name, avatar, online) {
+            activeConvUserId = userId;
+            loadConversations(); // refresh active state
+
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+    <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-white sticky top-0 z-10 shrink-0">
+      <div class="flex items-center gap-4">
+        <img src="${avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=137fec&color=fff`}" class="h-10 w-10 rounded-full object-cover"/>
+        <div>
+          <h2 class="font-semibold">${name}</h2>
+          <p class="text-xs text-slate-500 flex items-center gap-1">${online ? '<span class="h-2 w-2 bg-green-500 rounded-full inline-block"></span>Online' : '<span class="h-2 w-2 bg-slate-300 rounded-full inline-block"></span>Offline'}</p>
+        </div>
+      </div>
+    </div>
+    <div id="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+    <div id="typingIndicator" class="hidden px-6 py-2 text-xs text-slate-500 flex items-center gap-2">
+      <span class="flex gap-1"><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:0.2s"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:0.4s"></span></span>
+      ${name} is typing...
+    </div>
+    <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+      <div class="flex items-end gap-2 bg-slate-100 rounded-xl p-2 border border-transparent focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+        <textarea id="msgInput" class="w-full bg-transparent border-none resize-none focus:ring-0 text-sm py-2 px-1 placeholder-slate-500 max-h-32" placeholder="Type a message..." rows="1" onkeydown="handleKey(event)"></textarea>
+        <button onclick="handleSend()" class="p-2 text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shrink-0 flex items-center justify-center h-9 w-9">
+          <span class="material-symbols-outlined text-[18px]">send</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+            // Load messages
+            try {
+                const data = await api.get(`/messages/${userId}`);
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = '';
+                data.messages.forEach(m => appendMessage(m, m.sender_id === currentUser.id));
+                container.scrollTop = container.scrollHeight;
+            } catch (err) { console.error(err); }
+        }
+
+        function appendMessage(msg, isMine) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            const utcStr = msg.created_at.includes('Z') ? msg.created_at : msg.created_at.replace(' ', 'T') + 'Z';
+            const time = new Date(utcStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const div = document.createElement('div');
+            div.className = isMine ? 'flex justify-end' : 'flex justify-start';
+            div.innerHTML = `
+    <div class="max-w-[70%]">
+      <div class="${isMine ? 'bg-primary text-white rounded-2xl rounded-tr-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-tl-sm'} px-4 py-2.5 shadow-sm">
+        <p class="text-sm">${msg.content}</p>
+      </div>
+      <div class="flex ${isMine ? 'justify-end' : 'justify-start'} mt-1">
+        <span class="text-[10px] text-slate-500">${time}</span>
+      </div>
+    </div>
+  `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleSend() {
+            const input = document.getElementById('msgInput');
+            const content = input.value.trim();
+            if (!content || !activeConvUserId) return;
+            input.value = '';
+
+            if (socket) {
+                socket.emit('sendMessage', { receiver_id: activeConvUserId, content }, (msg) => {
+                    appendMessage(msg, true);
+                    loadConversations();
+                });
+            }
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+            if (socket && activeConvUserId) {
+                socket.emit('typing', { receiver_id: activeConvUserId, typing: true });
+                clearTimeout(window._typingTimer);
+                window._typingTimer = setTimeout(() => {
+                    socket.emit('typing', { receiver_id: activeConvUserId, typing: false });
+                }, 1500);
+            }
+        }
+
+        function timeAgo(dateStr) {
+            const now = new Date();
+            const utcStr = dateStr.includes('Z') ? dateStr : dateStr.replace(' ', 'T') + 'Z';
+            const d = new Date(utcStr);
+            const s = Math.floor((now - d) / 1000);
+            if (s < 60) return 'Just now'; if (s < 3600) return Math.floor(s / 60) + 'm ago';
+            if (s < 86400) return Math.floor(s / 3600) + 'h ago'; return Math.floor(s / 86400) + 'd ago';
+        }
+
+        initSocket();
+        loadConversations();
+        if (activeConvUserId) {
+            // Auto-open conversation if userId param present
+            setTimeout(async () => {
+                try {
+                    const data = await api.get(`/workers/${activeConvUserId}`);
+                    openConversation(activeConvUserId, data.profile.name, data.profile.avatar, data.profile.is_online);
+                } catch {
+                    // Might be homeowner-to-homeowner, try from conversations
+                    const convData = await api.get('/messages/conversations');
+                    const conv = convData.conversations.find(c => c.other_user_id === activeConvUserId);
+                    if (conv) openConversation(conv.other_user_id, conv.other_user_name, conv.other_user_avatar, conv.other_user_online);
+                }
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>
