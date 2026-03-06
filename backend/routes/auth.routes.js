@@ -29,4 +29,14 @@ router.put('/password', authMiddleware, validate({
 
 router.delete('/account', authMiddleware, auth.deleteAccount);
 
+router.post('/forgot-password', validate({
+    email: ['required', 'email']
+}), auth.forgotPassword);
+
+router.post('/reset-password', validate({
+    email: ['required', 'email'],
+    otp: ['required'],
+    newPassword: ['required', 'min:6']
+}), auth.resetPassword);
+
 module.exports = router;

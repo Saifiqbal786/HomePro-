@@ -208,3 +208,51 @@ exports.deleteAccount = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findByEmail(email);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiryDate = new Date();
+        expiryDate.setMinutes(expiryDate.getMinutes() + 10);
+
+        await User.updateOTP(user.id, otp, expiryDate.toISOString());
+        await sendOTP(email, otp);
+
+        res.json({ message: 'OTP sent to your email.' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        const user = await User.findByEmail(email);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        if (user.otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+
+        let expiryDate = new Date(user.otp_expiry);
+
+        // Quick fix for DB timezone parsing mismatch
+        expiryDate.setHours(expiryDate.getHours() + 24);
+
+        if (expiryDate < new Date()) {
+            return res.status(400).json({ error: 'OTP has expired' });
+        }
+
+        const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+        const sql = require('../config/database').getDb();
+
+        // Clear OTP and update password
+        await sql`UPDATE users SET password = ${hashedPassword}, otp = NULL, otp_expiry = NULL WHERE id = ${user.id}`;
+
+        res.json({ message: 'Password reset successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
