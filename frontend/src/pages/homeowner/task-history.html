@@ -139,8 +139,9 @@
         <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">payments</span>$${t.hourly_rate}/hr</span>
         ${t.payment_amount ? `<span class="font-medium text-slate-900">Total: $${t.payment_amount}</span>` : ''}
       </div>
-      <div class="flex gap-2 mt-4">
+      <div class="flex gap-2 mt-4 flex-wrap">
         <a href="/src/pages/chat/chat-page.html?userId=${t.worker_id}" class="text-sm text-primary hover:underline flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat</span>Message</a>
+        ${t.status === 'in_progress' ? `<a href="/src/pages/homeowner/track-worker.html?workerId=${t.worker_id}&taskId=${t.id}" class="text-sm text-emerald-600 hover:underline flex items-center gap-1 ml-4"><span class="material-symbols-outlined text-[16px]">location_on</span>Track Worker</a>` : ''}
         ${t.status === 'completed' ? `<button onclick="openReview('${t.worker_id}','${t.id}')" class="text-sm text-primary hover:underline flex items-center gap-1 ml-4"><span class="material-symbols-outlined text-[16px]">star</span>Review</button>` : ''}
         ${t.status === 'completed' && t.payment_amount ? `<button onclick="confirmPayment('${t.id}')" class="text-sm text-green-600 hover:underline flex items-center gap-1 ml-4"><span class="material-symbols-outlined text-[16px]">check_circle</span>Confirm Payment</button>` : ''}
       </div>

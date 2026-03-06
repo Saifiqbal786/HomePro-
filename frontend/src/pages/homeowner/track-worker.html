@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Track Your Worker - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>tailwind.config = { theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8" }, fontFamily: { "display": ["Inter", "sans-serif"] } } } }</script>
+    <style>
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 450px;
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 2s ease-out infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 min-h-screen">
+    <!-- Header -->
+    <header
+        class="flex items-center justify-between border-b border-slate-200 bg-white px-6 lg:px-10 py-3 sticky top-0 z-50">
+        <a class="flex items-center gap-2 text-primary" href="/src/pages/homeowner/search-workers.html">
+            <span class="material-symbols-outlined text-2xl">home_repair_service</span>
+            <h2 class="text-xl font-bold hidden sm:block">HomePro</h2>
+        </a>
+        <nav class="flex items-center gap-6">
+            <a class="text-sm font-medium text-slate-600 hover:text-primary"
+                href="/src/pages/homeowner/task-history.html">My Bookings</a>
+            <div class="size-10 rounded-full bg-slate-200 overflow-hidden cursor-pointer" onclick="logout()">
+                <span class="material-symbols-outlined text-slate-500 mt-2 ml-2">person</span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto p-6 space-y-6">
+        <!-- Page header -->
+        <div class="flex items-start gap-4">
+            <a href="/src/pages/homeowner/task-history.html" class="mt-1 p-2 rounded-lg hover:bg-slate-100">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold">Live Worker Tracking</h1>
+                <p id="subHeading" class="text-slate-500 text-sm mt-0.5">Waiting for worker's location...</p>
+            </div>
+        </div>
+
+        <!-- Status banner -->
+        <div id="statusBanner"
+            class="flex items-center gap-3 bg-white rounded-xl px-5 py-4 border border-slate-200 shadow-sm">
+            <span id="statusDot" class="w-3 h-3 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <div>
+                <p id="statusText" class="font-medium text-sm">Connecting...</p>
+                <p id="lastUpdated" class="text-xs text-slate-400">—</p>
+            </div>
+            <button onclick="centerMap()" id="centerBtn"
+                class="ml-auto hidden items-center gap-1 text-sm text-primary font-medium px-3 py-1.5 rounded-lg hover:bg-primary/10 transition-colors">
+                <span class="material-symbols-outlined text-[18px]">my_location</span> Center
+            </button>
+        </div>
+
+        <!-- Map Container -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden" style="height: 480px;">
+            <div id="map"></div>
+            <!-- Placeholder when Maps API not loaded -->
+            <div id="mapPlaceholder"
+                class="hidden h-full flex flex-col items-center justify-center bg-slate-50 p-10 text-center">
+                <span class="material-symbols-outlined text-5xl text-slate-300 mb-4">map</span>
+                <h3 class="text-lg font-semibold text-slate-600 mb-2">Google Maps API Key Required</h3>
+                <p class="text-slate-400 text-sm max-w-sm">Add your Google Maps API key to <code
+                        class="bg-slate-200 px-1 rounded">backend/.env</code> as <code
+                        class="bg-slate-200 px-1 rounded">GOOGLE_MAPS_API_KEY=your_key</code>, then restart the server.
+                </p>
+                <div id="rawCoords" class="mt-4 text-sm text-slate-500"></div>
+            </div>
+        </div>
+
+        <!-- Worker info card -->
+        <div id="workerCard"
+            class="hidden bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary">person</span>
+            </div>
+            <div>
+                <p class="font-semibold" id="workerName">—</p>
+                <p class="text-sm text-slate-500" id="workerCoords">—</p>
+            </div>
+            <a id="chatLink" href="#"
+                class="ml-auto flex items-center gap-1 text-sm text-primary font-medium px-4 py-2 rounded-lg border border-primary hover:bg-primary hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-[18px]">chat</span> Message
+            </a>
+        </div>
+    </main>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script>
+        if (!requireAuth()) throw 'Auth required';
+
+        const params = new URLSearchParams(location.search);
+        const taskId = params.get('taskId');
+        const workerId = params.get('workerId');
+
+        let map = null;
+        let workerMarker = null;
+        let socket = null;
+        let mapsReady = false;
+
+        // ── Init Google Maps ──────────────────────────────────────────
+        window.initMap = function () {
+            mapsReady = true;
+            document.getElementById('map').style.display = 'block';
+            document.getElementById('mapPlaceholder').style.display = 'none';
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 14,
+                center: { lat: 33.6844, lng: 73.0479 }, // default: Islamabad
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true,
+                styles: [
+                    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+                ]
+            });
+        };
+
+        function placeWorkerMarker(lat, lng, name) {
+            const pos = { lat, lng };
+            if (!workerMarker) {
+                // Pulse circle
+                new google.maps.Circle({
+                    map,
+                    center: pos,
+                    radius: 80,
+                    fillColor: '#137fec',
+                    fillOpacity: 0.15,
+                    strokeColor: '#137fec',
+                    strokeOpacity: 0.4,
+                    strokeWeight: 1,
+                });
+
+                workerMarker = new google.maps.Marker({
+                    position: pos,
+                    map,
+                    title: name,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#137fec',
+                        fillOpacity: 1,
+                        strokeColor: '#fff',
+                        strokeWeight: 3,
+                    },
+                    animation: google.maps.Animation.DROP,
+                });
+            } else {
+                workerMarker.setPosition(pos);
+            }
+            map.panTo(pos);
+        }
+
+        function centerMap() {
+            if (workerMarker && map) map.panTo(workerMarker.getPosition());
+        }
+
+        function updateUI(lat, lng, name, online) {
+            document.getElementById('statusDot').className = `w-3 h-3 rounded-full ${online ? 'bg-green-500' : 'bg-slate-400'} animate-pulse flex-shrink-0`;
+            document.getElementById('statusText').textContent = online ? `${name} is sharing live location` : `${name}'s last known location`;
+            document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+            document.getElementById('subHeading').textContent = `Tracking ${name}`;
+            document.getElementById('workerName').textContent = name;
+            document.getElementById('workerCoords').textContent = `${parseFloat(lat).toFixed(5)}, ${parseFloat(lng).toFixed(5)}`;
+            document.getElementById('workerCard').classList.remove('hidden');
+            document.getElementById('centerBtn').classList.remove('hidden');
+            document.getElementById('centerBtn').classList.add('flex');
+
+            // Fallback: show raw coords if Maps not ready
+            if (!mapsReady) {
+                document.getElementById('map').style.display = 'none';
+                document.getElementById('mapPlaceholder').style.display = 'flex';
+                document.getElementById('rawCoords').textContent = `📍 Lat: ${lat}, Lng: ${lng}`;
+                return;
+            }
+
+            placeWorkerMarker(parseFloat(lat), parseFloat(lng), name);
+        }
+
+        // ── Load last-known location via REST ─────────────────────────
+        async function loadInitialLocation() {
+            if (!workerId) return;
+            try {
+                const data = await api.get(`/location/${workerId}`);
+                updateUI(data.latitude, data.longitude, data.name, data.is_online);
+            } catch (e) {
+                document.getElementById('statusText').textContent = 'Worker has not shared location yet.';
+                document.getElementById('statusDot').className = 'w-3 h-3 rounded-full bg-slate-300 flex-shrink-0';
+            }
+        }
+
+        // ── Socket.io real-time updates ──────────────────────────────
+        function connectSocket() {
+            const token = localStorage.getItem('homepro_token');
+            socket = io({ auth: { token } });
+
+            socket.on('connect', () => {
+                document.getElementById('statusText').textContent = 'Connected – waiting for location updates...';
+            });
+
+            socket.on('workerLocationUpdate', (data) => {
+                if (workerId && data.workerId !== workerId) return; // ignore other workers
+                updateUI(data.latitude, data.longitude, document.getElementById('workerName').textContent || 'Worker', true);
+            });
+
+            socket.on('disconnect', () => {
+                document.getElementById('statusText').textContent = 'Disconnected from real-time updates.';
+            });
+        }
+
+        // ── Set chat link ────────────────────────────────────────────
+        if (workerId) {
+            document.getElementById('chatLink').href = `/src/pages/chat/chat-page.html?userId=${workerId}`;
+        }
+
+        // ── Bootstrap ────────────────────────────────────────────────
+        connectSocket();
+        loadInitialLocation();
+
+        // Show placeholder if Maps script is not properly configured
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!mapsReady) {
+                    document.getElementById('map').style.display = 'none';
+                    document.getElementById('mapPlaceholder').style.display = 'flex';
+                }
+            }, 3000);
+        });
+    </script>
+
+    <!-- 
+        ╔══════════════════════════════════════════════════════════════╗
+        ║  REPLACE YOUR_GOOGLE_MAPS_API_KEY with your actual key       ║
+        ║  Get one at: https://console.cloud.google.com/apis/          ║
+        ╚══════════════════════════════════════════════════════════════╝
+    -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"
+        onerror="document.getElementById('map').style.display='none'; document.getElementById('mapPlaceholder').style.display='flex';">
+        </script>
+</body>
+
+</html>

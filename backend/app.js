@@ -40,6 +40,23 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/upload', uploadRoutes); // NEW
 app.use('/api/admin', adminRoutes); // NEW ADMIN
 
+// Location API — get a worker's last known position
+app.get('/api/location/:workerId', authMiddleware, async (req, res) => {
+    try {
+        const sql = getDb();
+        const rows = await sql`
+            SELECT id, name, latitude, longitude, is_online, updated_at
+            FROM users WHERE id = ${req.params.workerId} AND role = 'worker'
+        `;
+        if (!rows.length) return res.status(404).json({ error: 'Worker not found' });
+        const w = rows[0];
+        if (!w.latitude || !w.longitude) return res.status(404).json({ error: 'Location unavailable' });
+        res.json({ workerId: w.id, name: w.name, latitude: w.latitude, longitude: w.longitude, is_online: w.is_online });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Notifications API
 app.get('/api/notifications', authMiddleware, async (req, res) => {
     try {

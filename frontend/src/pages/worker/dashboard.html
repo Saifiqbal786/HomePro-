@@ -127,13 +127,32 @@
                         </div>
                     </div>
 
-                    <!-- Recent Reviews -->
-                    <div>
+                    <!-- Right column: Location + Reviews -->
+                    <div class="space-y-6">
+                        <!-- Location Sharing Card -->
                         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                            <h2 class="text-lg font-bold mb-6">Recent Reviews</h2>
-                            <div id="reviewsList" class="space-y-5">
-                                <div class="animate-pulse">
-                                    <div class="h-16 bg-slate-100 rounded"></div>
+                            <h2 class="text-lg font-bold mb-1">📍 Location Sharing</h2>
+                            <p class="text-sm text-slate-500 mb-4">Let homeowners track you in real-time when you're on
+                                a job.</p>
+                            <div class="flex items-center gap-3">
+                                <button id="locationToggle" onclick="toggleLocationSharing()"
+                                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">
+                                    <span class="material-symbols-outlined text-[18px]">location_off</span>
+                                    <span id="locationToggleText">Start Sharing</span>
+                                </button>
+                                <span id="locationStatus" class="text-xs text-slate-400"></span>
+                            </div>
+                            <p id="locationCoords" class="text-xs text-slate-400 mt-2 font-mono hidden"></p>
+                        </div>
+
+                        <!-- Recent Reviews -->
+                        <div>
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                                <h2 class="text-lg font-bold mb-6">Recent Reviews</h2>
+                                <div id="reviewsList" class="space-y-5">
+                                    <div class="animate-pulse">
+                                        <div class="h-16 bg-slate-100 rounded"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -146,6 +165,7 @@
     <script src="/src/assets/js/api.js"></script>
     <script src="/src/assets/js/auth.js"></script>
     <script src="/src/assets/js/notifications.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         if (!requireAuth() || !requireRole('worker')) throw 'Access denied';
 
@@ -154,6 +174,67 @@
         document.getElementById('sidebarRole').textContent = 'Service Professional';
         document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.name.split(' ')[0]}! Here's what's happening today.`;
         if (user.avatar) document.getElementById('sidebarAvatar').innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover"/>`;
+
+        // ── Socket.io for location sharing ────────────────────────────
+        let socket = null;
+        let locationWatchId = null;
+        let locationSharing = false;
+
+        function connectSocket() {
+            const token = localStorage.getItem('homepro_token');
+            socket = io({ auth: { token } });
+            socket.on('connect', () => console.log('[WS] Connected'));
+            socket.on('disconnect', () => {
+                if (locationSharing) stopLocationSharing();
+            });
+        }
+
+        function toggleLocationSharing() {
+            if (locationSharing) {
+                stopLocationSharing();
+            } else {
+                startLocationSharing();
+            }
+        }
+
+        function startLocationSharing() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported by your browser', 'error');
+                return;
+            }
+            document.getElementById('locationStatus').textContent = 'Requesting permission...';
+            locationWatchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    if (socket) socket.emit('updateLocation', { latitude, longitude });
+                    locationSharing = true;
+                    document.getElementById('locationToggle').className = 'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm bg-green-500 text-white hover:bg-green-600 transition-all';
+                    document.getElementById('locationToggle').innerHTML = '<span class="material-symbols-outlined text-[18px]">location_on</span><span id="locationToggleText">Stop Sharing</span>';
+                    document.getElementById('locationStatus').textContent = '● Live';
+                    document.getElementById('locationStatus').className = 'text-xs text-green-600 font-medium';
+                    document.getElementById('locationCoords').textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                    document.getElementById('locationCoords').classList.remove('hidden');
+                },
+                (err) => {
+                    showToast('Location permission denied: ' + err.message, 'error');
+                    document.getElementById('locationStatus').textContent = '';
+                },
+                { enableHighAccuracy: true, maximumAge: 5000 }
+            );
+        }
+
+        function stopLocationSharing() {
+            if (locationWatchId !== null) {
+                navigator.geolocation.clearWatch(locationWatchId);
+                locationWatchId = null;
+            }
+            locationSharing = false;
+            document.getElementById('locationToggle').className = 'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all';
+            document.getElementById('locationToggle').innerHTML = '<span class="material-symbols-outlined text-[18px]">location_off</span><span id="locationToggleText">Start Sharing</span>';
+            document.getElementById('locationStatus').textContent = 'Stopped';
+            document.getElementById('locationStatus').className = 'text-xs text-slate-400';
+            document.getElementById('locationCoords').classList.add('hidden');
+        }
 
         async function loadDashboard() {
             try {
@@ -256,6 +337,7 @@
             } catch (err) { showToast(err.message, 'error'); }
         }
 
+        connectSocket();
         loadDashboard();
         startNotifPolling();
     </script>

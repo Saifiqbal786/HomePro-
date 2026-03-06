@@ -55,6 +55,46 @@ function setupSocket(io) {
             });
         });
 
+        // ── GEOLOCATION ──────────────────────────────────────────────
+        // Worker emits their GPS position; we save it and push to homeowner
+        socket.on('updateLocation', async (data) => {
+            const { latitude, longitude } = data;
+            if (!latitude || !longitude) return;
+
+            try {
+                const { getDb } = require('../config/database');
+                const sql = getDb();
+
+                // Save latest location to users table
+                await sql`
+                    UPDATE users
+                    SET latitude = ${latitude}, longitude = ${longitude}
+                    WHERE id = ${userId}
+                `;
+
+                // Find active tasks where this user is the worker → notify homeowners
+                const activeTasks = await sql`
+                    SELECT homeowner_id, id as task_id
+                    FROM tasks
+                    WHERE worker_id = ${userId}
+                    AND status = 'in_progress'
+                `;
+
+                activeTasks.forEach(task => {
+                    io.to(task.homeowner_id).emit('workerLocationUpdate', {
+                        workerId: userId,
+                        taskId: task.task_id,
+                        latitude,
+                        longitude,
+                        timestamp: Date.now(),
+                    });
+                });
+            } catch (err) {
+                console.error('[SOCKET] updateLocation error:', err.message);
+            }
+        });
+        // ─────────────────────────────────────────────────────────────
+
         // Disconnect
         socket.on('disconnect', async () => {
             console.log(`[SOCKET] User disconnected: ${userId}`);
