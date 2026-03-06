@@ -11,6 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/assets/css/main.css" />
     <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
+    <style>
+        .portfolio-img:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
 </head>
 
 <body class="bg-background-light font-display text-slate-900 min-h-screen">
@@ -49,14 +59,14 @@
 
         <!-- MAIN CONTENT -->
         <main class="flex-1 overflow-y-auto p-8">
-            <div class="max-w-3xl mx-auto">
-                <h1 class="text-3xl font-bold mb-8">Edit Profile</h1>
+            <div class="max-w-3xl mx-auto space-y-8">
+                <h1 class="text-3xl font-bold">Edit Profile</h1>
 
                 <div id="profileError"
-                    class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-6"></div>
+                    class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg"></div>
 
+                <!-- Profile Info Form -->
                 <form id="profileForm" class="space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                    <!-- Profile Picture -->
                     <div class="flex items-center gap-6">
                         <div id="avatarPreview"
                             class="w-24 h-24 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-slate-100 shadow-sm">
@@ -95,34 +105,82 @@
                         </div>
                     </div>
 
-                    <div class="pt-6 border-t border-slate-100 flex justify-end gap-3">
+                    <div class="pt-6 border-t border-slate-100 flex justify-end">
                         <button type="submit" id="saveBtn"
                             class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-md shadow-primary/20 hover:shadow-lg active:scale-95">Save
                             Changes</button>
                     </div>
                 </form>
+
+                <!-- Portfolio Section -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold">My Portfolio</h2>
+                            <p class="text-sm text-slate-500 mt-0.5">Showcase your past work. Up to 12 photos.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span id="photoCount" class="text-sm text-slate-400">0 / 12</span>
+                            <label id="uploadLabel"
+                                class="flex items-center gap-2 bg-primary text-white text-sm font-semibold px-4 py-2.5 rounded-lg cursor-pointer hover:bg-primary/90 transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+                                Add Photo
+                                <input id="portfolioInput" type="file" accept="image/*" class="hidden"
+                                    onchange="uploadPortfolioPhoto(this)" />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="uploadProgress" class="hidden mb-4">
+                        <div class="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
+                            <div class="spinner"
+                                style="width:18px;height:18px;border-width:2px;border-color:#137fec;border-top-color:transparent;">
+                            </div>
+                            <span class="text-sm text-blue-700 font-medium">Uploading photo...</span>
+                        </div>
+                    </div>
+
+                    <div id="portfolioGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+
+                    <div id="portfolioEmpty" class="text-center py-12 text-slate-400">
+                        <span class="material-symbols-outlined text-5xl block mb-3">photo_library</span>
+                        <p class="font-medium">No portfolio photos yet</p>
+                        <p class="text-sm mt-1">Add photos of your past work to attract more clients.</p>
+                    </div>
+                </div>
             </div>
         </main>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+        onclick="closeLightbox()">
+        <button class="absolute top-4 right-4 text-white hover:text-slate-300 transition-colors">
+            <span class="material-symbols-outlined text-3xl">close</span>
+        </button>
+        <img id="lightboxImg" src="" alt="Portfolio photo"
+            class="max-w-full max-h-full rounded-xl object-contain shadow-2xl" onclick="event.stopPropagation()" />
     </div>
 
     <script src="/src/assets/js/api.js"></script>
     <script src="/src/assets/js/auth.js"></script>
     <script>
         if (!requireAuth() || !requireRole('worker')) throw 'Access denied';
-        const user = getUser();
-        let currentProfile = null;
+        const workerUser = getUser();
+        let currentPortfolio = [];
 
         async function loadProfile() {
             try {
-                const data = await api.get(`/workers/${user.id}`);
-                currentProfile = data.profile;
-                document.getElementById('name').value = user.name;
+                const data = await api.get(`/workers/${workerUser.id}`);
+                document.getElementById('name').value = workerUser.name;
                 document.getElementById('bio').value = data.profile.bio || '';
                 document.getElementById('hourly_rate').value = data.profile.hourly_rate || 0;
                 document.getElementById('experience').value = data.profile.experience_years || 0;
-                if (user.avatar) {
-                    document.getElementById('avatarPreview').innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover"/>`;
+                if (workerUser.avatar) {
+                    document.getElementById('avatarPreview').innerHTML = `<img src="${workerUser.avatar}" class="w-full h-full object-cover"/>`;
                 }
+                try { currentPortfolio = JSON.parse(data.profile.portfolio || '[]'); } catch (_) { currentPortfolio = []; }
+                renderPortfolio();
             } catch (err) { console.error(err); }
         }
 
@@ -132,17 +190,15 @@
             const errDiv = document.getElementById('profileError');
             btn.disabled = true; btn.textContent = 'Saving...';
             errDiv.classList.add('hidden');
-
             try {
-                let avatarUrl = user.avatar;
+                let avatarUrl = workerUser.avatar;
                 const file = document.getElementById('avatarInput').files[0];
                 if (file) {
-                    const formData = new FormData();
-                    formData.append('image', file);
-                    const uploadRes = await api.postForm('/upload/image', formData);
-                    avatarUrl = uploadRes.url;
+                    const fd = new FormData();
+                    fd.append('image', file);
+                    const up = await api.postForm('/upload/image', fd);
+                    avatarUrl = up.url;
                 }
-
                 await api.put('/workers/profile', {
                     name: document.getElementById('name').value,
                     bio: document.getElementById('bio').value,
@@ -150,11 +206,8 @@
                     experience_years: parseInt(document.getElementById('experience').value) || 0,
                     avatar: avatarUrl
                 });
-
-                // Update local user data
-                const updatedUser = { ...user, name: document.getElementById('name').value, avatar: avatarUrl };
-                setUser(updatedUser);
-
+                const updated = { ...workerUser, name: document.getElementById('name').value, avatar: avatarUrl };
+                setUser(updated);
                 showToast('Profile updated successfully!', 'success');
                 setTimeout(() => window.location.reload(), 1500);
             } catch (err) {
@@ -162,6 +215,88 @@
                 btn.disabled = false; btn.textContent = 'Save Changes';
             }
         });
+
+        function renderPortfolio() {
+            const grid = document.getElementById('portfolioGrid');
+            const empty = document.getElementById('portfolioEmpty');
+            const count = document.getElementById('photoCount');
+            const lbl = document.getElementById('uploadLabel');
+            count.textContent = `${currentPortfolio.length} / 12`;
+            if (currentPortfolio.length >= 12) {
+                lbl.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                lbl.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            if (currentPortfolio.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            grid.innerHTML = currentPortfolio.map((photo, i) => `
+                <div class="portfolio-img relative rounded-xl overflow-hidden aspect-square bg-slate-100 group cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                     onclick="openLightbox('${photo.url}')">
+                    <img src="${photo.url}" alt="Portfolio ${i + 1}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <div class="delete-btn absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <button onclick="event.stopPropagation(); deletePortfolioPhoto('${photo.url}')"
+                            class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors shadow-lg">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function uploadPortfolioPhoto(input) {
+            if (!input.files[0]) return;
+            if (currentPortfolio.length >= 12) { showToast('Maximum 12 photos reached.', 'error'); return; }
+            document.getElementById('uploadProgress').classList.remove('hidden');
+            try {
+                const fd = new FormData();
+                fd.append('image', input.files[0]);
+                const token = localStorage.getItem('homepro_token');
+                const res = await fetch('/api/workers/portfolio', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: fd
+                });
+                const data = JSON.parse(await res.text());
+                if (!res.ok) throw new Error(data.error || 'Upload failed');
+                currentPortfolio = data.portfolio;
+                renderPortfolio();
+                showToast('Photo added!', 'success');
+            } catch (err) { showToast(err.message, 'error'); }
+            finally { document.getElementById('uploadProgress').classList.add('hidden'); input.value = ''; }
+        }
+
+        async function deletePortfolioPhoto(url) {
+            if (!confirm('Remove this photo from your portfolio?')) return;
+            try {
+                const token = localStorage.getItem('homepro_token');
+                const res = await fetch('/api/workers/portfolio', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = JSON.parse(await res.text());
+                if (!res.ok) throw new Error(data.error || 'Delete failed');
+                currentPortfolio = data.portfolio;
+                renderPortfolio();
+                showToast('Photo removed.', 'success');
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        function openLightbox(url) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightbox').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+            document.getElementById('lightboxImg').src = '';
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
 
         loadProfile();
     </script>

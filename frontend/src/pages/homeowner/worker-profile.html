@@ -134,6 +134,7 @@
       const skills = parseSafe(p.skills);
       const services = parseSafe(p.services);
       const credentials = parseSafe(p.credentials);
+      const portfolio = parseSafe(p.portfolio);
 
       document.title = `${p.name} - HomePro`;
 
@@ -184,6 +185,24 @@
             ${skills.map(s => `<span class="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium">${s}</span>`).join('')}
           </div>
         </div>
+        <!-- Portfolio Gallery -->
+        ${portfolio.length > 0 ? `
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+          <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">photo_library</span>Portfolio</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            ${portfolio.map((photo, idx) => `
+              <div class="relative rounded-xl overflow-hidden aspect-square bg-slate-100 cursor-pointer group shadow-sm hover:shadow-md transition-shadow"
+                   onclick="openPortfolioLightbox('${photo.url}')">
+                <img src="${photo.url}" alt="Portfolio ${idx + 1}"
+                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                     loading="lazy" />
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 transition-opacity text-3xl drop-shadow">zoom_in</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
         <!-- Reviews -->
         <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
           <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">reviews</span>Reviews</h2>
@@ -289,6 +308,28 @@
     });
 
     loadProfile();
+
+    // Portfolio lightbox
+    function openPortfolioLightbox(url) {
+      let lb = document.getElementById('portfolioLightbox');
+      if (!lb) {
+        lb = document.createElement('div');
+        lb.id = 'portfolioLightbox';
+        lb.className = 'fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 cursor-pointer';
+        lb.innerHTML = '<img id="portfolioLbImg" src="" class="max-w-full max-h-full rounded-xl object-contain shadow-2xl" onclick="event.stopPropagation()"/><button class="absolute top-4 right-4 text-white text-4xl leading-none">✕</button>';
+        lb.onclick = () => { lb.style.display = 'none'; document.body.style.overflow = ''; };
+        document.body.appendChild(lb);
+      }
+      document.getElementById('portfolioLbImg').src = url;
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const lb = document.getElementById('portfolioLightbox');
+        if (lb) { lb.style.display = 'none'; document.body.style.overflow = ''; }
+      }
+    });
   </script>
 </body>
 

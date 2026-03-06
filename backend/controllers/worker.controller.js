@@ -70,3 +70,59 @@ exports.updateAvailability = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// ── PORTFOLIO ─────────────────────────────────────────────────────────────────
+
+// POST /api/workers/portfolio  — upload image and append URL to portfolio array
+exports.addPortfolioImage = async (req, res) => {
+    try {
+        const { useCloudinary } = require('../config/upload.config');
+
+        if (!req.file) return res.status(400).json({ error: 'No image file provided.' });
+
+        const imageUrl = useCloudinary
+            ? req.file.path
+            : `/uploads/${req.file.filename}`;
+
+        const currentProfile = await WorkerProfile.findByWorkerId(req.user.id);
+        if (!currentProfile) return res.status(404).json({ error: 'Worker profile not found.' });
+
+        let portfolio = [];
+        try { portfolio = JSON.parse(currentProfile.portfolio || '[]'); } catch (_) { portfolio = []; }
+
+        if (portfolio.length >= 12) {
+            return res.status(400).json({ error: 'Portfolio limit reached. Maximum 12 photos allowed.' });
+        }
+
+        portfolio.push({ url: imageUrl, caption: req.body.caption || '', uploaded_at: new Date().toISOString() });
+
+        await WorkerProfile.update(req.user.id, { portfolio: JSON.stringify(portfolio) });
+
+        res.json({ message: 'Photo added to portfolio.', url: imageUrl, portfolio });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// DELETE /api/workers/portfolio  — remove a photo from portfolio array by URL
+exports.deletePortfolioImage = async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) return res.status(400).json({ error: 'Image URL is required.' });
+
+        const currentProfile = await WorkerProfile.findByWorkerId(req.user.id);
+        if (!currentProfile) return res.status(404).json({ error: 'Worker profile not found.' });
+
+        let portfolio = [];
+        try { portfolio = JSON.parse(currentProfile.portfolio || '[]'); } catch (_) { portfolio = []; }
+
+        const updatedPortfolio = portfolio.filter(p => p.url !== url);
+
+        await WorkerProfile.update(req.user.id, { portfolio: JSON.stringify(updatedPortfolio) });
+
+        res.json({ message: 'Photo removed from portfolio.', portfolio: updatedPortfolio });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
