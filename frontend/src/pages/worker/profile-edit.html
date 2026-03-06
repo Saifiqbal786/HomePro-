@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Edit Profile - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- SIDEBAR -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col h-full overflow-y-auto">
+            <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-200">
+                <span class="material-symbols-outlined text-primary text-2xl">home_repair_service</span>
+                <h2 class="text-xl font-bold">HomePro</h2>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/dashboard.html">
+                    <span class="material-symbols-outlined">home</span>Dashboard
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/tasks.html">
+                    <span class="material-symbols-outlined">work</span>My Jobs
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium"
+                    href="/src/pages/worker/profile-edit.html">
+                    <span class="material-symbols-outlined">person</span>Profile
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/chat/chat-page.html">
+                    <span class="material-symbols-outlined">chat</span>Messages
+                </a>
+            </nav>
+            <div class="p-4 mt-auto border-t border-slate-200">
+                <a onclick="logout()"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-red-600 font-medium transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined">logout</span>Log Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-3xl mx-auto">
+                <h1 class="text-3xl font-bold mb-8">Edit Profile</h1>
+
+                <div id="profileError"
+                    class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-6"></div>
+
+                <form id="profileForm" class="space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <!-- Profile Picture -->
+                    <div class="flex items-center gap-6">
+                        <div id="avatarPreview"
+                            class="w-24 h-24 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-slate-100 shadow-sm">
+                            <span
+                                class="material-symbols-outlined text-4xl text-slate-400 h-full w-full flex items-center justify-center">person</span>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-slate-900 mb-2">Profile Picture</label>
+                            <input id="avatarInput" type="file" accept="image/*"
+                                class="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
+                            <p class="text-xs text-slate-500">JPG, WebP or PNG. Max size 5MB.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-900 mb-2">Full Name</label>
+                            <input id="name" type="text" required
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-900 mb-2">Bio</label>
+                            <input id="bio" type="text"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                placeholder="Tell us about yourself" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-900 mb-2">Hourly Rate ($)</label>
+                            <input id="hourly_rate" type="number" required
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-900 mb-2">Years of Experience</label>
+                            <input id="experience" type="number"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm" />
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="submit" id="saveBtn"
+                            class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-md shadow-primary/20 hover:shadow-lg active:scale-95">Save
+                            Changes</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script>
+        if (!requireAuth() || !requireRole('worker')) throw 'Access denied';
+        const user = getUser();
+        let currentProfile = null;
+
+        async function loadProfile() {
+            try {
+                const data = await api.get(`/workers/${user.id}`);
+                currentProfile = data.profile;
+                document.getElementById('name').value = user.name;
+                document.getElementById('bio').value = data.profile.bio || '';
+                document.getElementById('hourly_rate').value = data.profile.hourly_rate || 0;
+                document.getElementById('experience').value = data.profile.experience_years || 0;
+                if (user.avatar) {
+                    document.getElementById('avatarPreview').innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover"/>`;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            const errDiv = document.getElementById('profileError');
+            btn.disabled = true; btn.textContent = 'Saving...';
+            errDiv.classList.add('hidden');
+
+            try {
+                let avatarUrl = user.avatar;
+                const file = document.getElementById('avatarInput').files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const uploadRes = await api.postForm('/upload/image', formData);
+                    avatarUrl = uploadRes.url;
+                }
+
+                await api.put('/workers/profile', {
+                    name: document.getElementById('name').value,
+                    bio: document.getElementById('bio').value,
+                    hourly_rate: parseFloat(document.getElementById('hourly_rate').value),
+                    experience_years: parseInt(document.getElementById('experience').value) || 0,
+                    avatar: avatarUrl
+                });
+
+                // Update local user data
+                const updatedUser = { ...user, name: document.getElementById('name').value, avatar: avatarUrl };
+                setUser(updatedUser);
+
+                showToast('Profile updated successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } catch (err) {
+                errDiv.textContent = err.message; errDiv.classList.remove('hidden');
+                btn.disabled = false; btn.textContent = 'Save Changes';
+            }
+        });
+
+        loadProfile();
+    </script>
+</body>
+
+</html>

@@ -10,8 +10,9 @@ async function login(email, password) {
     return data;
 }
 
-async function register(formData) {
-    const data = await api.post('/auth/register', formData);
+async function register(dataOrForm) {
+    const isForm = dataOrForm instanceof FormData;
+    const data = isForm ? await api.postForm('/auth/register', dataOrForm) : await api.post('/auth/register', dataOrForm);
     if (data && data.token) {
         setToken(data.token);
         setUser(data.user);

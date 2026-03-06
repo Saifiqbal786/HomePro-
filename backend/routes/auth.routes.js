@@ -2,8 +2,9 @@ const router = require('express').Router();
 const auth = require('../controllers/auth.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 const { validate } = require('../middleware/validation.middleware');
+const { upload } = require('../config/upload.config');
 
-router.post('/register', validate({
+router.post('/register', upload.single('avatarFile'), validate({
     name: ['required'], email: ['required', 'email'],
     password: ['required', 'min:6'], role: ['required', 'role'],
 }), auth.register);

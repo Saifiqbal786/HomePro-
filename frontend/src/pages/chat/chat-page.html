@@ -160,6 +160,10 @@
     </div>
     <div class="p-4 bg-white border-t border-slate-200 shrink-0">
       <div class="flex items-end gap-2 bg-slate-100 rounded-xl p-2 border border-transparent focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+        <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="uploadChatImage(event)" />
+        <button onclick="document.getElementById('chatImageInput').click()" class="p-2 text-slate-500 hover:text-primary rounded-lg transition-colors shrink-0 flex items-center justify-center h-9 w-9">
+          <span class="material-symbols-outlined text-[20px]">attach_file</span>
+        </button>
         <textarea id="msgInput" class="w-full bg-transparent border-none resize-none focus:ring-0 text-sm py-2 px-1 placeholder-slate-500 max-h-32" placeholder="Type a message..." rows="1" onkeydown="handleKey(event)"></textarea>
         <button onclick="handleSend()" class="p-2 text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shrink-0 flex items-center justify-center h-9 w-9">
           <span class="material-symbols-outlined text-[18px]">send</span>
@@ -183,12 +187,18 @@
             if (!container) return;
             const utcStr = msg.created_at.includes('Z') ? msg.created_at : msg.created_at.replace(' ', 'T') + 'Z';
             const time = new Date(utcStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            let contentHtml = `<p class="text-sm">${msg.content}</p>`;
+            if (msg.message_type === 'image') {
+                contentHtml = `<img src="${msg.content}" class="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="window.open('${msg.content}', '_blank')"/>`;
+            }
+
             const div = document.createElement('div');
             div.className = isMine ? 'flex justify-end' : 'flex justify-start';
             div.innerHTML = `
     <div class="max-w-[70%]">
-      <div class="${isMine ? 'bg-primary text-white rounded-2xl rounded-tr-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-tl-sm'} px-4 py-2.5 shadow-sm">
-        <p class="text-sm">${msg.content}</p>
+      <div class="${isMine ? 'bg-primary text-white rounded-2xl rounded-tr-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-tl-sm'} ${msg.message_type === 'image' ? 'p-1' : 'px-4 py-2.5'} shadow-sm">
+        ${contentHtml}
       </div>
       <div class="flex ${isMine ? 'justify-end' : 'justify-start'} mt-1">
         <span class="text-[10px] text-slate-500">${time}</span>
@@ -210,6 +220,38 @@
                     appendMessage(msg, true);
                     loadConversations();
                 });
+            }
+        }
+
+        async function uploadChatImage(event) {
+            const file = event.target.files[0];
+            if (!file || !activeConvUserId) return;
+
+            const originalText = document.getElementById('msgInput').placeholder;
+            document.getElementById('msgInput').placeholder = 'Uploading image...';
+            document.getElementById('msgInput').disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                const res = await api.postForm('/upload/image', formData);
+
+                if (socket) {
+                    socket.emit('sendMessage', {
+                        receiver_id: activeConvUserId,
+                        content: res.url,
+                        message_type: 'image'
+                    }, (msg) => {
+                        appendMessage(msg, true);
+                        loadConversations();
+                    });
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                document.getElementById('msgInput').placeholder = originalText;
+                document.getElementById('msgInput').disabled = false;
+                event.target.value = ''; // clear input
             }
         }
 

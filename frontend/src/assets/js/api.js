@@ -25,7 +25,8 @@ function setUser(user) {
 
 async function apiRequest(endpoint, options = {}) {
     const token = getToken();
-    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    const headers = { ...options.headers };
+    if (!options.isFormData) headers['Content-Type'] = 'application/json';
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
@@ -50,6 +51,7 @@ async function apiRequest(endpoint, options = {}) {
 const api = {
     get: (url) => apiRequest(url, { method: 'GET' }),
     post: (url, body) => apiRequest(url, { method: 'POST', body: JSON.stringify(body) }),
+    postForm: (url, formData) => apiRequest(url, { method: 'POST', body: formData, isFormData: true }),
     put: (url, body) => apiRequest(url, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
     delete: (url) => apiRequest(url, { method: 'DELETE' }),
 };

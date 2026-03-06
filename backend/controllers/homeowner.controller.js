@@ -1,4 +1,5 @@
 const Task = require('../models/Task');
+const User = require('../models/User');
 const { getDb } = require('../config/database');
 
 exports.getDashboard = (req, res) => {
@@ -41,6 +42,20 @@ exports.toggleFavorite = (req, res) => {
             db.prepare('INSERT INTO favorites (id, homeowner_id, worker_id) VALUES (?, ?, ?)').run(uuidv4(), req.user.id, worker_id);
             res.json({ favorited: true });
         }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.updateProfile = (req, res) => {
+    try {
+        const user = User.update(req.user.id, {
+            name: req.body.name,
+            phone: req.body.phone,
+            location: req.body.location,
+            avatar: req.body.avatar
+        });
+        res.json({ user: User.safeUser(user) });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

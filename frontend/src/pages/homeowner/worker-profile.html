@@ -2,128 +2,132 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Worker Profile - HomePro</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="/src/assets/css/main.css" />
-    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Worker Profile - HomePro</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <!-- Flatpickr for Date Selection -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <link rel="stylesheet" href="/src/assets/css/main.css" />
+  <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
 </head>
 
 <body class="bg-background-light font-display text-slate-900">
-    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
-        <!-- HEADER -->
-        <header
-            class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 px-10 py-3 bg-white sticky top-0 z-50">
-            <div class="flex items-center gap-8">
-                <a class="flex items-center gap-2 text-primary" href="/src/pages/homeowner/search-workers.html">
-                    <span class="material-symbols-outlined text-2xl">home_repair_service</span>
-                    <h2 class="text-lg font-bold">HomePro</h2>
-                </a>
-            </div>
-            <div class="flex items-center gap-6">
-                <a class="text-sm font-medium hover:text-primary text-slate-600"
-                    href="/src/pages/homeowner/search-workers.html">Find Workers</a>
-                <a class="text-sm font-medium hover:text-primary text-slate-600"
-                    href="/src/pages/chat/chat-page.html">Messages</a>
-                <a class="text-sm font-medium hover:text-primary text-slate-600"
-                    href="/src/pages/homeowner/task-history.html">My Jobs</a>
-                <div id="userAvatar" class="size-10 rounded-full bg-slate-200 overflow-hidden cursor-pointer"
-                    onclick="logout()"></div>
-            </div>
-        </header>
+  <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+    <!-- HEADER -->
+    <header
+      class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 px-10 py-3 bg-white sticky top-0 z-50">
+      <div class="flex items-center gap-8">
+        <a class="flex items-center gap-2 text-primary" href="/src/pages/homeowner/search-workers.html">
+          <span class="material-symbols-outlined text-2xl">home_repair_service</span>
+          <h2 class="text-lg font-bold">HomePro</h2>
+        </a>
+      </div>
+      <div class="flex items-center gap-6">
+        <a class="text-sm font-medium hover:text-primary text-slate-600"
+          href="/src/pages/homeowner/search-workers.html">Find Workers</a>
+        <a class="text-sm font-medium hover:text-primary text-slate-600"
+          href="/src/pages/chat/chat-page.html">Messages</a>
+        <a class="text-sm font-medium hover:text-primary text-slate-600"
+          href="/src/pages/homeowner/task-history.html">My Jobs</a>
+        <div id="userAvatar" class="size-10 rounded-full bg-slate-200 overflow-hidden cursor-pointer"
+          onclick="logout()"></div>
+      </div>
+    </header>
 
-        <div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-8">
-            <div id="profileContent" class="flex flex-col max-w-[1200px] w-full gap-8">
-                <div class="text-center py-12">
-                    <div class="spinner mx-auto"></div>
-                    <p class="mt-4 text-slate-500">Loading profile...</p>
-                </div>
-            </div>
+    <div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-8">
+      <div id="profileContent" class="flex flex-col max-w-[1200px] w-full gap-8">
+        <div class="text-center py-12">
+          <div class="spinner mx-auto"></div>
+          <p class="mt-4 text-slate-500">Loading profile...</p>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- HIRE MODAL -->
-    <div id="hireModal" class="hidden modal-backdrop">
-        <div class="modal-content max-w-md">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span
-                    class="material-symbols-outlined text-primary">assignment_turned_in</span>Hire Worker</h3>
-            <form id="hireForm" class="space-y-4">
-                <div><label class="block text-sm font-medium text-slate-700 mb-1">Service Type</label>
-                    <input id="hireService" readonly
-                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 text-sm" />
-                </div>
-                <div><label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                    <textarea id="hireDesc" rows="2"
-                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm"
-                        placeholder="Describe what you need done"></textarea>
-                </div>
-                <div><label class="block text-sm font-medium text-slate-700 mb-1">Location</label>
-                    <input id="hireLoc" type="text"
-                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm"
-                        placeholder="123 Main St" />
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
-                        <input id="hireDate" type="date" required
-                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm" />
-                    </div>
-                    <div><label class="block text-sm font-medium text-slate-700 mb-1">Time</label>
-                        <input id="hireTime" type="time" required
-                            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm" />
-                    </div>
-                </div>
-                <p id="hireRate" class="text-sm text-slate-500"></p>
-                <div class="flex gap-3">
-                    <button type="button" onclick="closeHireModal()"
-                        class="flex-1 py-2.5 border border-slate-300 rounded-lg font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
-                    <button type="submit" id="hireBtn"
-                        class="flex-1 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90">Send
-                        Request</button>
-                </div>
-            </form>
+  <!-- HIRE MODAL -->
+  <div id="hireModal" class="hidden modal-backdrop">
+    <div class="modal-content max-w-md">
+      <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span
+          class="material-symbols-outlined text-primary">assignment_turned_in</span>Hire Worker</h3>
+      <form id="hireForm" class="space-y-4">
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">Service Type</label>
+          <input id="hireService" readonly
+            class="w-full px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 text-sm" />
         </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+          <textarea id="hireDesc" rows="2" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm"
+            placeholder="Describe what you need done"></textarea>
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">Location</label>
+          <input id="hireLoc" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm"
+            placeholder="123 Main St" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+            <input id="hireDate" type="text" required placeholder="Select Date"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm bg-white cursor-pointer" />
+          </div>
+          <div><label class="block text-sm font-medium text-slate-700 mb-1">Time</label>
+            <input id="hireTime" type="time" required
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm" />
+          </div>
+        </div>
+        <p id="hireRate" class="text-sm text-slate-500"></p>
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeHireModal()"
+            class="flex-1 py-2.5 border border-slate-300 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition-colors">Cancel</button>
+          <button type="submit" id="hireBtn"
+            class="flex-1 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">Send
+            Request</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script src="/src/assets/js/api.js"></script>
-    <script src="/src/assets/js/auth.js"></script>
-    <script>
-        if (!requireAuth()) throw 'Auth required';
-        const workerId = new URLSearchParams(window.location.search).get('id');
-        if (!workerId) { window.location.href = '/src/pages/homeowner/search-workers.html'; throw 'No ID'; }
+  <script src="/src/assets/js/api.js"></script>
+  <script src="/src/assets/js/auth.js"></script>
+  <script>
+    if (!requireAuth()) throw 'Auth required';
+    const workerId = new URLSearchParams(window.location.search).get('id');
+    if (!workerId) { window.location.href = '/src/pages/homeowner/search-workers.html'; throw 'No ID'; }
 
-        let workerData = null;
+    let workerData = null;
+    let datePicker = null;
 
-        async function loadProfile() {
-            try {
-                const data = await api.get(`/workers/${workerId}`);
-                workerData = data.profile;
-                renderProfile(data.profile, data.reviews);
-            } catch (err) {
-                document.getElementById('profileContent').innerHTML = '<div class="text-center py-12 text-red-500">Worker not found</div>';
-            }
-        }
+    async function loadProfile() {
+      try {
+        const data = await api.get(`/workers/${workerId}`);
+        workerData = data.profile;
+        renderProfile(data.profile, data.reviews);
+      } catch (err) {
+        document.getElementById('profileContent').innerHTML = '<div class="text-center py-12 text-red-500">Worker not found</div>';
+      }
+    }
 
-        function renderStars(rating) {
-            let stars = '';
-            for (let i = 1; i <= 5; i++) {
-                stars += `<span class="material-symbols-outlined text-amber-400 text-lg" style="font-variation-settings:'FILL' ${i <= Math.round(rating) ? 1 : 0}">star</span>`;
-            }
-            return stars;
-        }
+    function renderStars(rating) {
+      let stars = '';
+      for (let i = 1; i <= 5; i++) {
+        stars += `<span class="material-symbols-outlined text-amber-400 text-lg" style="font-variation-settings:'FILL' ${i <= Math.round(rating) ? 1 : 0}">star</span>`;
+      }
+      return stars;
+    }
 
-        function renderProfile(p, reviews) {
-            const skills = JSON.parse(p.skills || '[]');
-            const services = JSON.parse(p.services || '[]');
-            const credentials = JSON.parse(p.credentials || '[]');
+    function renderProfile(p, reviews) {
+      const skills = JSON.parse(p.skills || '[]');
+      const services = JSON.parse(p.services || '[]');
+      const credentials = JSON.parse(p.credentials || '[]');
 
-            document.title = `${p.name} - HomePro`;
+      document.title = `${p.name} - HomePro`;
 
-            document.getElementById('profileContent').innerHTML = `
+      document.getElementById('profileContent').innerHTML = `
     <!-- Profile Header -->
     <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row gap-6 items-center md:items-start justify-between">
       <div class="flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
@@ -214,40 +218,63 @@
       </div>
     </div>
   `;
-        }
+    }
 
-        function openHireModal() {
-            if (!workerData) return;
-            const services = JSON.parse(workerData.services || '[]');
-            document.getElementById('hireService').value = services[0] || 'General';
-            document.getElementById('hireRate').textContent = `Rate: $${workerData.hourly_rate}/hr`;
-            document.getElementById('hireModal').classList.remove('hidden');
-        }
-        function closeHireModal() { document.getElementById('hireModal').classList.add('hidden'); }
+    function openHireModal() {
+      if (!workerData) return;
+      const services = JSON.parse(workerData.services || '[]');
+      document.getElementById('hireService').value = services[0] || 'General';
+      document.getElementById('hireRate').textContent = `Rate: $${workerData.hourly_rate}/hr`;
 
-        document.getElementById('hireForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('hireBtn');
-            btn.disabled = true; btn.textContent = 'Sending...';
-            try {
-                await api.post('/tasks', {
-                    worker_id: workerId,
-                    service_type: document.getElementById('hireService').value,
-                    description: document.getElementById('hireDesc').value,
-                    location: document.getElementById('hireLoc').value,
-                    scheduled_date: document.getElementById('hireDate').value,
-                    scheduled_time: document.getElementById('hireTime').value,
-                });
-                showToast('Hire request sent successfully!', 'success');
-                closeHireModal();
-            } catch (err) {
-                showToast(err.message, 'error');
-            }
-            btn.disabled = false; btn.textContent = 'Send Request';
+      // Initialize Flatpickr with blocked dates
+      const availability = JSON.parse(workerData.availability || '{}');
+      const blockedDates = availability.blocked_dates || [];
+
+      if (datePicker) {
+        datePicker.destroy();
+      }
+
+      datePicker = flatpickr("#hireDate", {
+        minDate: "today",
+        disable: blockedDates,
+        dateFormat: "Y-m-d",
+        placeholder: "Select an available date"
+      });
+
+      document.getElementById('hireModal').classList.remove('hidden');
+
+      // Fix modal overflow issues with datepicker
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeHireModal() {
+      document.getElementById('hireModal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('hireForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('hireBtn');
+      btn.disabled = true; btn.textContent = 'Sending...';
+      try {
+        await api.post('/tasks', {
+          worker_id: workerId,
+          service_type: document.getElementById('hireService').value,
+          description: document.getElementById('hireDesc').value,
+          location: document.getElementById('hireLoc').value,
+          scheduled_date: document.getElementById('hireDate').value,
+          scheduled_time: document.getElementById('hireTime').value,
         });
+        showToast('Hire request sent successfully!', 'success');
+        closeHireModal();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      btn.disabled = false; btn.textContent = 'Send Request';
+    });
 
-        loadProfile();
-    </script>
+    loadProfile();
+  </script>
 </body>
 
 </html>

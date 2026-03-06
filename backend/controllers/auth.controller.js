@@ -12,7 +12,12 @@ exports.register = (req, res) => {
         if (existing) return res.status(409).json({ error: 'Email already registered.' });
 
         const hashedPassword = bcrypt.hashSync(password, saltRounds);
-        const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=137fec&color=fff&size=128`;
+
+        let avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=137fec&color=fff&size=128`;
+        if (req.file) {
+            const { useCloudinary } = require('../config/upload.config');
+            avatar = useCloudinary ? req.file.path : `/uploads/${req.file.filename}`;
+        }
 
         const user = User.create({ role, name, email, phone, password: hashedPassword, gender, location, latitude, longitude, avatar });
 

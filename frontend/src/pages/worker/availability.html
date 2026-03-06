@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Manage Availability - HomePro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/assets/css/main.css" />
+    <script>tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#137fec", "background-light": "#f6f7f8", "background-dark": "#101922" }, fontFamily: { "display": ["Inter", "sans-serif"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } } }</script>
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            cursor: default;
+            border-color: transparent;
+            pointer-events: none;
+        }
+
+        .calendar-day.past {
+            opacity: 0.5;
+            pointer-events: none;
+            background: #f8fafc;
+            color: #94a3b8;
+        }
+
+        .calendar-day.available {
+            background: white;
+            color: #0f172a;
+            border-color: #e2e8f0;
+        }
+
+        .calendar-day.available:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .calendar-day.blocked {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fca5a5;
+            position: relative;
+        }
+
+        .calendar-day.blocked::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(239, 68, 68, 0.1) 5px, rgba(239, 68, 68, 0.1) 10px);
+        }
+
+        .calendar-day.blocked:hover {
+            background: #fecaca;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- SIDEBAR -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col h-full overflow-y-auto">
+            <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-200">
+                <span class="material-symbols-outlined text-primary text-2xl">home_repair_service</span>
+                <h2 class="text-xl font-bold">HomePro</h2>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/dashboard.html">
+                    <span class="material-symbols-outlined">home</span>Dashboard
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/tasks.html">
+                    <span class="material-symbols-outlined">work</span>My Jobs
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium"
+                    href="/src/pages/worker/availability.html">
+                    <span class="material-symbols-outlined">calendar_month</span>Availability
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/worker/profile-edit.html">
+                    <span class="material-symbols-outlined">person</span>Profile
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                    href="/src/pages/chat/chat-page.html">
+                    <span class="material-symbols-outlined">chat</span>Messages
+                </a>
+            </nav>
+            <div class="p-4 mt-auto border-t border-slate-200">
+                <a onclick="logout()"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-red-600 font-medium transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined">logout</span>Log Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">Manage Availability</h1>
+                        <p class="text-slate-500">Block out dates you are not available to work. Homeowners cannot book
+                            you on blocked dates.</p>
+                    </div>
+                    <button id="saveBtn" onclick="saveAvailability()"
+                        class="bg-primary text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">save</span> Save Changes
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center">
+
+                    <!-- Calendar Header -->
+                    <div class="flex items-center justify-between w-full max-w-2xl mb-8">
+                        <button onclick="changeMonth(-1)"
+                            class="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-600">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <h2 id="currentMonthYear" class="text-xl font-bold text-slate-800">Month YYYY</h2>
+                        <button onclick="changeMonth(1)"
+                            class="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-600">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="flex gap-6 mb-6 text-sm text-slate-600 max-w-2xl w-full justify-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded border border-slate-300 bg-white"></div> Available
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded border border-red-300 bg-red-100 relative overflow-hidden">
+                                <div
+                                    class="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(239,68,68,0.2)_2px,rgba(239,68,68,0.2)_4px)]">
+                                </div>
+                            </div> Blocked
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="w-full max-w-2xl">
+                        <div
+                            class="calendar-grid mb-2 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <div>Su</div>
+                            <div>Mo</div>
+                            <div>Tu</div>
+                            <div>We</div>
+                            <div>Th</div>
+                            <div>Fr</div>
+                            <div>Sa</div>
+                        </div>
+                        <div id="calendarDays" class="calendar-grid text-sm font-medium">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/src/assets/js/api.js"></script>
+    <script src="/src/assets/js/auth.js"></script>
+    <script>
+        if (!requireAuth() || !requireRole('worker')) throw 'Access denied';
+        const user = getUser();
+
+        let currentDate = new Date();
+        currentDate.setDate(1); // Set to first of month
+        let blockedDates = new Set();
+        let changed = false;
+
+        async function loadAvailability() {
+            try {
+                const data = await api.get(`/workers/${user.id}`);
+                const availability = JSON.parse(data.profile.availability || '{}');
+                blockedDates = new Set(availability.blocked_dates || []);
+                renderCalendar();
+            } catch (err) { console.error('Error loading availability', err); }
+        }
+
+        function toggleDate(dateStr) {
+            if (blockedDates.has(dateStr)) {
+                blockedDates.delete(dateStr);
+            } else {
+                blockedDates.add(dateStr);
+            }
+            changed = true;
+            renderCalendar();
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            // Format title
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('currentMonthYear').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            const todayStr = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            let html = '';
+
+            // Empty slots before 1st of month
+            for (let i = 0; i < firstDayIndex; i++) {
+                html += `<div class="calendar-day empty aspect-square rounded-xl"></div>`;
+            }
+
+            // Days of the month
+            for (let i = 1; i <= lastDate; i++) {
+                const dayDate = new Date(year, month, i);
+                // Format YYYY-MM-DD safely taking local time into account to avoid shifting
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
+                let classes = "calendar-day flex items-center justify-center aspect-square rounded-xl border cursor-pointer";
+
+                if (dayDate < now) {
+                    classes += " past";
+                } else {
+                    if (blockedDates.has(dateStr)) {
+                        classes += " blocked";
+                    } else {
+                        classes += " available";
+                    }
+                }
+
+                html += `
+                    <div class="${classes}" ${dayDate >= now ? `onclick="toggleDate('${dateStr}')"` : ''}>
+                        ${i}
+                    </div>
+                `;
+            }
+
+            document.getElementById('calendarDays').innerHTML = html;
+        }
+
+        async function saveAvailability() {
+            const btn = document.getElementById('saveBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="spinner w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Saving...`;
+            btn.disabled = true;
+
+            try {
+                await api.put('/workers/availability', {
+                    blocked_dates: Array.from(blockedDates)
+                });
+                showToast('Availability saved successfully!', 'success');
+                changed = false;
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Initialize
+        loadAvailability();
+    </script>
+</body>
+
+</html>

@@ -9,6 +9,7 @@ const taskRoutes = require('./routes/task.routes');
 const chatRoutes = require('./routes/chat.routes');
 const reviewRoutes = require('./routes/review.routes');
 const paymentRoutes = require('./routes/payment.routes');
+const uploadRoutes = require('./routes/upload.routes'); // NEW
 const errorMiddleware = require('./middleware/error.middleware');
 const authMiddleware = require('./middleware/auth.middleware');
 const { getDb } = require('./config/database');
@@ -24,6 +25,9 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
+// Serve local uploads if cloudinary is not used
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/workers', workerRoutes);
@@ -32,6 +36,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/messages', chatRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/upload', uploadRoutes); // NEW
 
 // Notifications API
 app.get('/api/notifications', authMiddleware, (req, res) => {
