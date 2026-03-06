@@ -1,68 +1,172 @@
 /**
  * i18n.js
  * Handles English/Urdu translation across the HomePro application
- * Powered by Google Translate API
+ * Powered by Lingvanex REST API
  */
 
-// 1. Inject the Google Translate initialization script into the head
-(function injectGoogleTranslate() {
-    // Only inject once
-    if (document.getElementById('google-translate-script')) return;
+const LINGVANEX_API_KEY = 'a_0Lx6FV7k2u85kOG915oCQPTfxI4Y9n0cpSp3KGiEpQZmosbicvo144mHWK36MWSz0LpPebEwI7iFsBGC';
+const LINGVANEX_URL = 'https://api-b2b.backenster.com/b1/api/v3/translate';
 
-    // Create the required google_translate_element div (we'll hide this later)
-    const gtContainer = document.createElement('div');
-    gtContainer.id = 'google_translate_element';
-    gtContainer.style.display = 'none'; // Hide the ugly default widget
-    document.body.appendChild(gtContainer);
+// Local cache to prevent re-translating strings we already know
+// Stored in session memory to keep it fast, or could be localStorage for persistence
+let translationCache = JSON.parse(localStorage.getItem('homepro_translation_cache') || '{}');
 
-    // Initialize function called by Google's script
-    window.googleTranslateElementInit = function () {
-        new google.translate.TranslateElement({
-            pageLanguage: 'en',
-            includedLanguages: 'en,ur', // Only allow English and Urdu
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false
-        }, 'google_translate_element');
-    };
+function saveCache() {
+    try {
+        localStorage.setItem('homepro_translation_cache', JSON.stringify(translationCache));
+    } catch (e) { /* Ignore quota exceeded */ }
+}
 
-    // Load the actual Google Translate script
-    const script = document.createElement('script');
-    script.id = 'google-translate-script';
-    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.head.appendChild(script);
-})();
+// 1. Text Node Crawler
+function getTranslatableNodes(element) {
+    const nodes = [];
+    const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: function (node) {
+                // Skip empty whitespace
+                if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
 
-// 2. Custom Translation Trigger Logic
-function changeLanguage(targetLang) {
-    // Google translate uses a select dropdown internally
-    const selectElement = document.querySelector('.goog-te-combo');
-    if (selectElement) {
-        selectElement.value = targetLang;
-        // Trigger the change event so Google recognizes it
-        selectElement.dispatchEvent(new Event('change'));
+                // Skip script, style, noscript tags
+                const parentTag = node.parentElement ? node.parentElement.tagName.toLowerCase() : '';
+                if (['script', 'style', 'noscript', 'code'].includes(parentTag)) {
+                    return NodeFilter.FILTER_REJECT;
+                }
 
-        // Toggle font & direction class
-        if (targetLang === 'ur') {
-            document.body.classList.add('lang-ur');
-            document.documentElement.lang = 'ur';
-            document.documentElement.dir = 'rtl';
-        } else {
-            document.body.classList.remove('lang-ur');
-            document.documentElement.lang = 'en';
-            document.documentElement.dir = 'ltr';
+                // Skip elements that explicitly shouldn't be translated (e.g. material icons)
+                if (node.parentElement && node.parentElement.classList.contains('material-symbols-outlined')) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                // Support ignoring marked elements
+                if (node.parentElement && node.parentElement.hasAttribute('data-no-translate')) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        }
+    );
+
+    let currentNode;
+    while (currentNode = walker.nextNode()) {
+        nodes.push(currentNode);
+    }
+    return nodes;
+}
+
+// 2. Lingvanex Translation Engine
+async function translateNodesToUrdu(nodes) {
+    const textsToTranslate = [];
+    const nodeMap = [];
+
+    // Filter out already cached texts
+    for (let node of nodes) {
+        // Store the original english text on the node object itself so we can always revert
+        if (!node._originalEnglish) {
+            node._originalEnglish = node.nodeValue;
         }
 
-        // Save preference
-        localStorage.setItem('homepro_lang', targetLang);
-        updateToggleButton(targetLang);
-    } else {
-        // If the script hasn't fully loaded yet, wait and retry
-        setTimeout(() => changeLanguage(targetLang), 500);
+        const text = node._originalEnglish.trim();
+
+        // If it's just numbers or symbols, or we already have it cached
+        if (translationCache[text]) {
+            node.nodeValue = node.nodeValue.replace(text, translationCache[text]);
+        } else if (text.match(/[a-zA-Z]/)) {
+            // Needs translation through API
+            textsToTranslate.push(text);
+            nodeMap.push({ node, original: text });
+        }
+    }
+
+    if (textsToTranslate.length === 0) return;
+
+    // Lingvanex API request
+    try {
+        // We might need to chunk this if the array gets too massive (e.g. > 100 items), 
+        // but for a standard UI page it should be fine.
+        const response = await fetch(LINGVANEX_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${LINGVANEX_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: 'ur',
+                from: 'en',
+                data: textsToTranslate
+            })
+        });
+
+        const result = await response.json();
+
+        if (result && result.result) {
+            // Map translations back directly to the exact DOM nodes
+            nodeMap.forEach((mapping, index) => {
+                const translatedText = result.result[index];
+                if (translatedText) {
+                    mapping.node.nodeValue = mapping.node.nodeValue.replace(mapping.original, translatedText);
+                    // Save to cache
+                    translationCache[mapping.original] = translatedText;
+                }
+            });
+            saveCache();
+        }
+    } catch (error) {
+        console.error("Translation API Error:", error);
     }
 }
 
-// 3. UI Toggle Button Logic
+function restoreEnglish(nodes) {
+    for (let node of nodes) {
+        if (node._originalEnglish) {
+            node.nodeValue = node._originalEnglish;
+        }
+    }
+}
+
+// 3. Main Toggle Logic
+async function changeLanguage(targetLang) {
+    const isUrdu = targetLang === 'ur';
+
+    // Toggle font & direction class
+    if (isUrdu) {
+        document.body.classList.add('lang-ur');
+        document.documentElement.lang = 'ur';
+        document.documentElement.dir = 'rtl';
+    } else {
+        document.body.classList.remove('lang-ur');
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+    }
+
+    const toggleBtn = document.getElementById('i18n-toggle-btn');
+    if (toggleBtn) {
+        // Show loading state
+        toggleBtn.style.opacity = '0.5';
+        toggleBtn.style.pointerEvents = 'none';
+    }
+
+    const textNodes = getTranslatableNodes(document.body);
+
+    if (isUrdu) {
+        await translateNodesToUrdu(textNodes);
+    } else {
+        restoreEnglish(textNodes);
+    }
+
+    // Save preference
+    localStorage.setItem('homepro_lang', targetLang);
+    updateToggleButton(targetLang);
+
+    if (toggleBtn) {
+        toggleBtn.style.opacity = '1';
+        toggleBtn.style.pointerEvents = 'auto';
+    }
+}
+
+// 4. UI Toggle Button Logic
 function updateToggleButton(lang) {
     const isUrdu = lang === 'ur';
     const toggleBtn = document.getElementById('i18n-toggle-btn');
@@ -81,24 +185,12 @@ function handleLanguageToggle() {
     changeLanguage(newLang);
 }
 
-// 4. Inject Custom UI and Restore Preference on Load
+// 5. Inject Custom UI and Restore Preference on Load
 window.addEventListener('DOMContentLoaded', () => {
-    // Insert a custom style to hide the intrusive Google Translate top banner
+    // Insert a custom style for the Urdu font
     const style = document.createElement('style');
     style.innerHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
-        
-        /* Hide the top banner */
-        .goog-te-banner-frame { display: none !important; }
-        /* Prevent body shift caused by the top banner */
-        body { top: 0px !important; }
-        /* Hide the "Powered by Google Translate" tooltip */
-        .goog-tooltip { display: none !important; }
-        .goog-tooltip:hover { display: none !important; }
-        /* Hide the original element */
-        .goog-te-gadget { display: none !important; }
-        /* Fix hovering text styling issues */
-        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
         
         /* Global Urdu Font Support */
         body.lang-ur, body.lang-ur * {
@@ -111,8 +203,9 @@ window.addEventListener('DOMContentLoaded', () => {
     // Build the language toggle button UI
     const toggleBtn = document.createElement('button');
     toggleBtn.id = 'i18n-toggle-btn';
-    // Use flex-shrink-0 and normal margins instead of auto pushing
     toggleBtn.className = 'flex-shrink-0 flex items-center justify-center px-4 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-sm cursor-pointer z-50 text-nowrap ml-2';
+    // Add data-no-translate so the button itself is ignored by the crawler
+    toggleBtn.setAttribute('data-no-translate', 'true');
     toggleBtn.onclick = handleLanguageToggle;
     toggleBtn.title = "Switch Language (English / Urdu)";
 
@@ -120,7 +213,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const headerNav = document.querySelector('header nav') || document.querySelector('header > div:last-child > div:last-child') || document.querySelector('header');
 
     if (headerNav) {
-        // Append it as the last element of the nav container (so it goes after the logout button)
+        // Append it as the last element of the nav container
         headerNav.appendChild(toggleBtn);
         // Add a bit of gap if the parent doesn't have it
         if (!headerNav.className.includes('gap-')) {
@@ -128,14 +221,11 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Try to restore user preference
+    // Initialize state
     const savedLang = localStorage.getItem('homepro_lang');
     if (savedLang === 'ur') {
-        document.body.classList.add('lang-ur');
-        document.documentElement.lang = 'ur';
-        document.documentElement.dir = 'rtl';
-        // Need a slight delay to ensure Google's script loaded the dropdown before we try to change it
-        setTimeout(() => changeLanguage('ur'), 1000);
+        updateToggleButton('ur'); // Update button UI immediately
+        changeLanguage('ur');
     } else {
         updateToggleButton('en');
     }
