@@ -23,14 +23,14 @@
         <nav class="flex-1 py-4 overflow-y-auto">
             <ul class="space-y-1">
                 <li>
-                    <a href="#"
-                        class="flex items-center gap-3 px-6 py-3 text-white bg-slate-800 border-l-4 border-primary-500">
+                    <a href="dashboard.html"
+                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
                         <i class="fas fa-chart-pie w-5"></i> Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="users.html" id="navUsers"
-                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                    <a href="#" id="navUsers"
+                        class="flex items-center gap-3 px-6 py-3 text-white bg-slate-800 border-l-4 border-primary-500">
                         <i class="fas fa-users w-5"></i> Users
                     </a>
                 </li>
@@ -65,7 +65,7 @@
             <div class="max-w-7xl mx-auto space-y-6">
 
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-800">Platform Overview</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Platform Users</h2>
                     <button onclick="document.getElementById('addUserModal').classList.remove('hidden')"
                         class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
                         <i class="fas fa-plus"></i> Add New User
@@ -123,72 +123,35 @@
                     </div>
                 </div>
 
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                            <i class="fas fa-users text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Total Homeowners</p>
-                            <h3 id="statHomeowners" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                            <i class="fas fa-hard-hat text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Total Workers</p>
-                            <h3 id="statWorkers" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-                            <i class="fas fa-clipboard-check text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Platform Tasks</p>
-                            <h3 id="statTasks" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-                            <i class="fas fa-dollar-sign text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium">Total Volume</p>
-                            <h3 id="statRevenue" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity Table -->
+                <!-- Users Table -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-gray-800">Recent Platform Tasks</h3>
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <h3 class="text-lg font-bold text-gray-800" id="totalUsersCount">Users</h3>
+                        <select id="roleFilter"
+                            class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">All Roles</option>
+                            <option value="homeowner">Homeowners</option>
+                            <option value="worker">Workers</option>
+                            <option value="admin">Admins</option>
+                        </select>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                                    <th class="px-6 py-3 font-medium">Homeowner</th>
-                                    <th class="px-6 py-3 font-medium">Worker</th>
-                                    <th class="px-6 py-3 font-medium">Service</th>
+                                <tr
+                                    class="bg-white text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                    <th class="px-6 py-3 font-medium">Name</th>
+                                    <th class="px-6 py-3 font-medium">Email</th>
+                                    <th class="px-6 py-3 font-medium">Role</th>
+                                    <th class="px-6 py-3 font-medium">Phone</th>
                                     <th class="px-6 py-3 font-medium">Status</th>
-                                    <th class="px-6 py-3 font-medium text-right">Date</th>
+                                    <th class="px-6 py-3 font-medium text-right">Joined</th>
                                 </tr>
                             </thead>
-                            <tbody id="recentTasksTable" class="text-sm divide-y divide-gray-100">
+                            <tbody id="usersTableBody" class="text-sm divide-y divide-gray-100">
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading recent activity...
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading users...
                                     </td>
                                 </tr>
                             </tbody>
@@ -200,7 +163,7 @@
         </div>
     </main>
 
-    <script src="../../js/admin.js"></script>
+    <script src="../../js/users.js"></script>
 </body>
 
 </html>
