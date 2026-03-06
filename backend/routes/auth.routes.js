@@ -22,4 +22,11 @@ router.post('/resend-otp', validate({
     email: ['required', 'email']
 }), auth.resendOTP);
 
+router.put('/password', authMiddleware, validate({
+    currentPassword: ['required'],
+    newPassword: ['required', 'min:6']
+}), auth.changePassword);
+
+router.delete('/account', authMiddleware, auth.deleteAccount);
+
 module.exports = router;

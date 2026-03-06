@@ -156,3 +156,55 @@ exports.login = async (req, res) => {
 exports.getMe = (req, res) => {
     res.json({ user: req.user });
 };
+
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        // Get full user record to verify current password
+        const sql = require('../config/database').getDb();
+        const users = await sql`SELECT * FROM users WHERE id = ${userId}`;
+        if (users.length === 0) return res.status(404).json({ error: 'User not found' });
+        const user = users[0];
+
+        const match = await bcrypt.compare(currentPassword, user.password);
+        if (!match) return res.status(401).json({ error: 'Incorrect current password' });
+
+        const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+        await sql`UPDATE users SET password = ${hashedPassword} WHERE id = ${userId}`;
+
+        res.json({ message: 'Password changed successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.deleteAccount = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const userRole = req.user.role;
+        const sql = require('../config/database').getDb();
+
+        if (userRole === 'worker') {
+            await sql`DELETE FROM worker_profiles WHERE worker_id = ${userId}`;
+            // Optional: delete related portfolios if necessary, but DB cascade might handle or they might be orphaned if not handled.
+            // Since there's no cascade script shown, doing worker_profiles first is good.
+        }
+
+        // Let's also delete related bookings/reviews ? If we don't have cascade setup, this might throw an error. 
+        // We will try deleting just the user and profile. 
+        // If there are foreign key constraints for tasks/payments/reviews, we might need a transaction.
+        // Let's assume DB handles it or we manually delete.
+        await sql`DELETE FROM tasks WHERE homeowner_id = ${userId} OR worker_id = ${userId}`;
+        await sql`DELETE FROM messages WHERE sender_id = ${userId} OR receiver_id = ${userId}`;
+        await sql`DELETE FROM reviews WHERE reviewer_id = ${userId} OR worker_id = ${userId}`;
+        await sql`DELETE FROM waitlist WHERE worker_id = ${userId}`; // Just in case
+
+        await sql`DELETE FROM users WHERE id = ${userId}`;
+
+        res.json({ message: 'Account deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

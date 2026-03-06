@@ -54,9 +54,13 @@
                 </nav>
                 <div id="userAvatar"
                     class="size-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-2 border-transparent hover:border-primary cursor-pointer transition-all"
-                    onclick="logout()">
+                    onclick="window.location.href='/src/pages/homeowner/profile-edit.html'">
                     <span class="material-symbols-outlined text-slate-500">person</span>
                 </div>
+                <button onclick="logout()" title="Log Out"
+                    class="flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                </button>
             </div>
         </header>
 
