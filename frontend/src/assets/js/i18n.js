@@ -187,6 +187,15 @@ function handleLanguageToggle() {
 
 // 5. Inject Custom UI and Restore Preference on Load
 window.addEventListener('DOMContentLoaded', () => {
+    // Only apply the translation engine to worker-facing pages
+    if (!window.location.pathname.includes('/worker/')) {
+        // If we are on a non-worker page, explicitly ensure LTR and English
+        document.body.classList.remove('lang-ur');
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+        return;
+    }
+
     // Insert a custom style for the Urdu font
     const style = document.createElement('style');
     style.innerHTML = `
@@ -196,6 +205,13 @@ window.addEventListener('DOMContentLoaded', () => {
         body.lang-ur, body.lang-ur * {
             font-family: 'Noto Nastaliq Urdu', 'Times New Roman', serif !important;
             letter-spacing: normal !important;
+        }
+
+        /* Protect Material Icons from Nastaliq font scaling and RTL mirroring issues */
+        body.lang-ur .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            direction: ltr !important;
+            display: inline-block;
         }
     `;
     document.head.appendChild(style);
