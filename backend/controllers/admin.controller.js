@@ -124,3 +124,66 @@ exports.addUser = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Revenue Analytics — GET /api/admin/analytics
+exports.getRevenueAnalytics = async (req, res) => {
+    try {
+        const sql = getDb();
+
+        // Daily revenue — last 30 days
+        const daily = await sql`
+            SELECT
+                TO_CHAR(confirmed_at, 'YYYY-MM-DD') as date,
+                SUM(amount) as revenue,
+                COUNT(*) as transactions
+            FROM payments
+            WHERE status = 'confirmed'
+              AND confirmed_at >= NOW() - INTERVAL '30 days'
+            GROUP BY TO_CHAR(confirmed_at, 'YYYY-MM-DD')
+            ORDER BY date ASC
+        `;
+
+        // Monthly revenue — last 12 months
+        const monthly = await sql`
+            SELECT
+                TO_CHAR(confirmed_at, 'YYYY-MM') as month,
+                SUM(amount) as revenue,
+                COUNT(*) as transactions
+            FROM payments
+            WHERE status = 'confirmed'
+              AND confirmed_at >= NOW() - INTERVAL '12 months'
+            GROUP BY TO_CHAR(confirmed_at, 'YYYY-MM')
+            ORDER BY month ASC
+        `;
+
+        // Top earning workers — top 5
+        const topWorkers = await sql`
+            SELECT u.name, SUM(p.amount) as total_earned, COUNT(p.id) as jobs
+            FROM payments p
+            JOIN users u ON u.id = p.worker_id
+            WHERE p.status = 'confirmed'
+            GROUP BY u.name
+            ORDER BY total_earned DESC
+            LIMIT 5
+        `;
+
+        // Task status breakdown
+        const taskStatus = await sql`
+            SELECT status, COUNT(*) as count FROM tasks GROUP BY status
+        `;
+
+        // Platform totals
+        const totals = await sql`
+            SELECT
+                COUNT(*) as total_transactions,
+                SUM(amount) as total_revenue,
+                AVG(amount) as avg_transaction
+            FROM payments WHERE status = 'confirmed'
+        `;
+
+        res.json({ daily, monthly, topWorkers, taskStatus, totals: totals[0] });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+

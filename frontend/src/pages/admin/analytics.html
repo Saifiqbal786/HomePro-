@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Analytics - HomePro Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #137fec;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex h-screen overflow-hidden text-gray-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-hammer text-blue-400"></i> HomePro Admin
+            </h1>
+        </div>
+        <nav class="flex-1 py-4 overflow-y-auto">
+            <ul class="space-y-1">
+                <li>
+                    <a href="dashboard.html"
+                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                        <i class="fas fa-chart-pie w-5"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="users.html"
+                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                        <i class="fas fa-users w-5"></i> Users
+                    </a>
+                </li>
+                <li>
+                    <a href="analytics.html"
+                        class="flex items-center gap-3 px-6 py-3 text-white bg-slate-800 border-l-4 border-blue-400">
+                        <i class="fas fa-chart-line w-5"></i> Analytics
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <button onclick="adminLogout()"
+                class="flex items-center gap-3 px-6 py-3 w-full text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm">
+                <i class="fas fa-sign-out-alt w-5"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Topbar -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-chart-line text-blue-500 text-xl"></i>
+                <h2 class="text-xl font-bold text-gray-900">Revenue Analytics</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Period toggle -->
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button id="btn30d" onclick="switchPeriod('30d')"
+                        class="px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow text-blue-600 transition-all">
+                        30 Days
+                    </button>
+                    <button id="btn12m" onclick="switchPeriod('12m')"
+                        class="px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 transition-all">
+                        12 Months
+                    </button>
+                </div>
+                <span id="adminEmail" class="text-sm text-gray-500"></span>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 overflow-y-auto p-6">
+
+            <!-- Loading state -->
+            <div id="loadingState" class="flex flex-col items-center justify-center h-96 gap-4">
+                <div class="spinner" style="width:48px;height:48px;"></div>
+                <p class="text-gray-500">Loading analytics...</p>
+            </div>
+
+            <div id="analyticsContent" class="hidden space-y-6">
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="stat-card">
+                        <p class="text-sm text-gray-500 mb-1">Total Revenue</p>
+                        <p id="kpiRevenue" class="text-3xl font-bold text-gray-900">—</p>
+                        <p class="text-xs text-gray-400 mt-1">All confirmed payments</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-sm text-gray-500 mb-1">Total Transactions</p>
+                        <p id="kpiTransactions" class="text-3xl font-bold text-gray-900">—</p>
+                        <p class="text-xs text-gray-400 mt-1">Confirmed payments</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-sm text-gray-500 mb-1">Avg. Transaction</p>
+                        <p id="kpiAvg" class="text-3xl font-bold text-gray-900">—</p>
+                        <p class="text-xs text-gray-400 mt-1">Per payment</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-sm text-gray-500 mb-1">Period Revenue</p>
+                        <p id="kpiPeriod" class="text-3xl font-bold text-blue-600">—</p>
+                        <p id="kpiPeriodLabel" class="text-xs text-gray-400 mt-1">Last 30 days</p>
+                    </div>
+                </div>
+
+                <!-- Main Revenue Chart -->
+                <div class="chart-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900" id="revenueChartTitle">Revenue — Last 30 Days</h3>
+                        <span class="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                            <i class="fas fa-circle text-blue-500 mr-1"></i>Confirmed Payments
+                        </span>
+                    </div>
+                    <div style="height:300px; position:relative;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Donut + Bar -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <!-- Task Status Donut -->
+                    <div class="chart-card">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Task Status Breakdown</h3>
+                        <div style="height:240px; position:relative;">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Workers Bar -->
+                    <div class="chart-card">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Top Earning Workers</h3>
+                        <div style="height:240px; position:relative;">
+                            <canvas id="workersChart"></canvas>
+                        </div>
+                        <div id="noWorkersMsg" class="hidden text-center py-8 text-gray-400 text-sm">
+                            <i class="fas fa-user-slash text-2xl mb-2 block"></i>No confirmed payments yet.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ── Auth guard ───────────────────────────────────────────
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('homepro_token');
+        const adminData = JSON.parse(localStorage.getItem('admin_user') || localStorage.getItem('homepro_user') || 'null');
+        if (!token || !adminData || adminData.role !== 'admin') {
+            window.location.href = '/src/pages/admin/login.html';
+            throw 'Unauthorized';
+        }
+        document.getElementById('adminEmail').textContent = adminData.email || adminData.name;
+
+        function adminLogout() {
+            localStorage.removeItem('admin_token'); localStorage.removeItem('admin_user');
+            localStorage.removeItem('homepro_token'); localStorage.removeItem('homepro_user');
+            window.location.href = '/src/pages/admin/login.html';
+        }
+
+        // ── State ────────────────────────────────────────────────
+        let analyticsData = null;
+        let currentPeriod = '30d';
+        let revenueChartInst = null;
+        let statusChartInst = null;
+        let workersChartInst = null;
+
+        const CHART_COLORS = ['#137fec', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+        const STATUS_COLORS = {
+            pending: '#f59e0b', accepted: '#137fec', in_progress: '#10b981',
+            completed: '#6366f1', cancelled: '#ef4444'
+        };
+
+        // ── Fetch ─────────────────────────────────────────────────
+        async function fetchAnalytics() {
+            const res = await fetch('/api/admin/analytics', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch analytics');
+            return res.json();
+        }
+
+        // ── Period switcher ───────────────────────────────────────
+        function switchPeriod(period) {
+            currentPeriod = period;
+            document.getElementById('btn30d').className = period === '30d'
+                ? 'px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow text-blue-600 transition-all'
+                : 'px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 transition-all';
+            document.getElementById('btn12m').className = period === '12m'
+                ? 'px-4 py-1.5 text-sm font-medium rounded-md bg-white shadow text-blue-600 transition-all'
+                : 'px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 transition-all';
+            if (analyticsData) renderRevenueChart(analyticsData);
+        }
+
+        // ── KPI Cards ─────────────────────────────────────────────
+        function renderKPIs(data) {
+            const t = data.totals;
+            document.getElementById('kpiRevenue').textContent = `$${parseFloat(t.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('kpiTransactions').textContent = parseInt(t.total_transactions || 0).toLocaleString();
+            document.getElementById('kpiAvg').textContent = `$${parseFloat(t.avg_transaction || 0).toFixed(2)}`;
+        }
+
+        // ── Revenue Line/Bar Chart ────────────────────────────────
+        function renderRevenueChart(data) {
+            const rows = currentPeriod === '30d' ? data.daily : data.monthly;
+            const labels = rows.map(r => r.date || r.month);
+            const values = rows.map(r => parseFloat(r.revenue));
+            const periodRevenue = values.reduce((a, b) => a + b, 0);
+
+            document.getElementById('kpiPeriod').textContent = `$${periodRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('kpiPeriodLabel').textContent = currentPeriod === '30d' ? 'Last 30 days' : 'Last 12 months';
+            document.getElementById('revenueChartTitle').textContent = currentPeriod === '30d' ? 'Revenue — Last 30 Days' : 'Revenue — Last 12 Months';
+
+            if (revenueChartInst) revenueChartInst.destroy();
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 0, 0, 300);
+            grad.addColorStop(0, 'rgba(19,127,236,0.25)');
+            grad.addColorStop(1, 'rgba(19,127,236,0)');
+
+            revenueChartInst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: values,
+                        borderColor: '#137fec',
+                        backgroundColor: grad,
+                        borderWidth: 2.5,
+                        pointRadius: labels.length <= 14 ? 4 : 2,
+                        pointBackgroundColor: '#137fec',
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` $${ctx.parsed.y.toFixed(2)}` } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 12, font: { size: 11 } } },
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => `$${v}`, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // ── Task Status Doughnut ──────────────────────────────────
+        function renderStatusChart(data) {
+            const labels = data.taskStatus.map(s => s.status.replace('_', ' '));
+            const values = data.taskStatus.map(s => parseInt(s.count));
+            const colors = data.taskStatus.map(s => STATUS_COLORS[s.status] || '#94a3b8');
+
+            if (statusChartInst) statusChartInst.destroy();
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            statusChartInst = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '65%',
+                    plugins: {
+                        legend: { position: 'right', labels: { font: { size: 12 }, padding: 14 } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } }
+                    }
+                }
+            });
+        }
+
+        // ── Top Workers Bar ───────────────────────────────────────
+        function renderWorkersChart(data) {
+            const workers = data.topWorkers;
+            if (!workers || workers.length === 0) {
+                document.getElementById('noWorkersMsg').classList.remove('hidden');
+                document.getElementById('workersChart').style.display = 'none';
+                return;
+            }
+            const labels = workers.map(w => w.name.split(' ')[0]);
+            const values = workers.map(w => parseFloat(w.total_earned));
+
+            if (workersChartInst) workersChartInst.destroy();
+            const ctx = document.getElementById('workersChart').getContext('2d');
+            workersChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Total Earned ($)',
+                        data: values,
+                        backgroundColor: CHART_COLORS.slice(0, workers.length),
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` $${ctx.parsed.x.toFixed(2)}` } } },
+                    scales: {
+                        x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => `$${v}`, font: { size: 11 } } },
+                        y: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } }
+                    }
+                }
+            });
+        }
+
+        // ── Bootstrap ─────────────────────────────────────────────
+        async function init() {
+            try {
+                analyticsData = await fetchAnalytics();
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('analyticsContent').classList.remove('hidden');
+                renderKPIs(analyticsData);
+                renderRevenueChart(analyticsData);
+                renderStatusChart(analyticsData);
+                renderWorkersChart(analyticsData);
+            } catch (err) {
+                document.getElementById('loadingState').innerHTML = `
+                    <i class="fas fa-exclamation-triangle text-red-400 text-4xl"></i>
+                    <p class="text-red-500 font-medium">${err.message}</p>
+                    <button onclick="init()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm">Retry</button>
+                `;
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
