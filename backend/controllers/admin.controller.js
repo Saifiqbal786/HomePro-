@@ -150,19 +150,27 @@ exports.getAllUsers = async (req, res) => {
 
         if (role) {
             users = await sql`
-                SELECT id, name, email, role, phone, location, created_at, is_online 
-                FROM users 
-                WHERE role = ${role}
-                ORDER BY created_at DESC 
+                SELECT u.id, u.name, u.email, u.role, u.phone, u.location, u.created_at,
+                       u.is_online, u.account_status, u.suspension_reason, u.suspended_until,
+                       u.is_verified,
+                       wp.rating, wp.total_reviews
+                FROM users u
+                LEFT JOIN worker_profiles wp ON wp.worker_id = u.id
+                WHERE u.role = ${role}
+                ORDER BY u.created_at DESC
                 LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}
             `;
             totalRes = await sql`SELECT COUNT(*) as count FROM users WHERE role = ${role}`;
         } else {
             users = await sql`
-                SELECT id, name, email, role, phone, location, created_at, is_online 
-                FROM users 
-                WHERE role != 'admin'
-                ORDER BY created_at DESC 
+                SELECT u.id, u.name, u.email, u.role, u.phone, u.location, u.created_at,
+                       u.is_online, u.account_status, u.suspension_reason, u.suspended_until,
+                       u.is_verified,
+                       wp.rating, wp.total_reviews
+                FROM users u
+                LEFT JOIN worker_profiles wp ON wp.worker_id = u.id
+                WHERE u.role != 'admin'
+                ORDER BY u.created_at DESC
                 LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}
             `;
             totalRes = await sql`SELECT COUNT(*) as count FROM users WHERE role != 'admin'`;
