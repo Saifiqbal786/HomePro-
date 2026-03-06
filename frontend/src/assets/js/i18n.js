@@ -42,6 +42,17 @@ function changeLanguage(targetLang) {
         // Trigger the change event so Google recognizes it
         selectElement.dispatchEvent(new Event('change'));
 
+        // Toggle font & direction class
+        if (targetLang === 'ur') {
+            document.body.classList.add('lang-ur');
+            document.documentElement.lang = 'ur';
+            document.documentElement.dir = 'rtl';
+        } else {
+            document.body.classList.remove('lang-ur');
+            document.documentElement.lang = 'en';
+            document.documentElement.dir = 'ltr';
+        }
+
         // Save preference
         localStorage.setItem('homepro_lang', targetLang);
         updateToggleButton(targetLang);
@@ -75,6 +86,8 @@ window.addEventListener('DOMContentLoaded', () => {
     // Insert a custom style to hide the intrusive Google Translate top banner
     const style = document.createElement('style');
     style.innerHTML = `
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+        
         /* Hide the top banner */
         .goog-te-banner-frame { display: none !important; }
         /* Prevent body shift caused by the top banner */
@@ -86,13 +99,20 @@ window.addEventListener('DOMContentLoaded', () => {
         .goog-te-gadget { display: none !important; }
         /* Fix hovering text styling issues */
         .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+        
+        /* Global Urdu Font Support */
+        body.lang-ur, body.lang-ur * {
+            font-family: 'Noto Nastaliq Urdu', 'Times New Roman', serif !important;
+            letter-spacing: normal !important;
+        }
     `;
     document.head.appendChild(style);
 
     // Build the language toggle button UI
     const toggleBtn = document.createElement('button');
     toggleBtn.id = 'i18n-toggle-btn';
-    toggleBtn.className = 'flex items-center justify-center px-3 py-1.5 ml-4 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-sm ml-auto mr-4 cursor-pointer z-50';
+    // Use flex-shrink-0 and normal margins instead of auto pushing
+    toggleBtn.className = 'flex-shrink-0 flex items-center justify-center px-4 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-sm cursor-pointer z-50 text-nowrap ml-2';
     toggleBtn.onclick = handleLanguageToggle;
     toggleBtn.title = "Switch Language (English / Urdu)";
 
@@ -100,17 +120,20 @@ window.addEventListener('DOMContentLoaded', () => {
     const headerNav = document.querySelector('header nav') || document.querySelector('header > div:last-child > div:last-child') || document.querySelector('header');
 
     if (headerNav) {
-        // If it's a specific nav bar
-        if (headerNav.tagName === 'NAV') {
-            headerNav.insertBefore(toggleBtn, headerNav.firstChild);
-        } else {
-            headerNav.appendChild(toggleBtn);
+        // Append it as the last element of the nav container (so it goes after the logout button)
+        headerNav.appendChild(toggleBtn);
+        // Add a bit of gap if the parent doesn't have it
+        if (!headerNav.className.includes('gap-')) {
+            headerNav.style.gap = '16px';
         }
     }
 
     // Try to restore user preference
     const savedLang = localStorage.getItem('homepro_lang');
     if (savedLang === 'ur') {
+        document.body.classList.add('lang-ur');
+        document.documentElement.lang = 'ur';
+        document.documentElement.dir = 'rtl';
         // Need a slight delay to ensure Google's script loaded the dropdown before we try to change it
         setTimeout(() => changeLanguage('ur'), 1000);
     } else {
