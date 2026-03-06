@@ -2,42 +2,49 @@ const { getDb } = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 
 class User {
-    static findById(id) {
-        return getDb().prepare('SELECT * FROM users WHERE id = ?').get(id);
+    static async findById(id) {
+        const sql = getDb();
+        const result = await sql`SELECT * FROM users WHERE id = ${id}`;
+        return result.length > 0 ? result[0] : null;
     }
 
-    static findByEmail(email) {
-        return getDb().prepare('SELECT * FROM users WHERE email = ?').get(email);
+    static async findByEmail(email) {
+        const sql = getDb();
+        const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+        return result.length > 0 ? result[0] : null;
     }
 
-    static create({ role, name, email, phone, password, gender, location, latitude, longitude, avatar }) {
+    static async create({ role, name, email, phone, password, gender, location, latitude, longitude, avatar }) {
+        const sql = getDb();
         const id = uuidv4();
-        getDb().prepare(
-            `INSERT INTO users (id, role, name, email, phone, password, gender, location, latitude, longitude, avatar)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-        ).run(id, role, name, email, phone, password, gender || null, location || null, latitude || 0, longitude || 0, avatar || null);
+        await sql`
+            INSERT INTO users (id, role, name, email, phone, password, gender, location, latitude, longitude, avatar)
+            VALUES (${id}, ${role}, ${name}, ${email}, ${phone || null}, ${password}, ${gender || null}, ${location || null}, ${latitude || 0}, ${longitude || 0}, ${avatar || null})
+        `;
         return this.findById(id);
     }
 
-    static update(id, fields) {
+    static async update(id, fields) {
+        const sql = getDb();
         const allowed = ['name', 'phone', 'avatar', 'gender', 'location', 'latitude', 'longitude', 'is_online'];
-        const sets = [];
-        const vals = [];
+
+        // Filter out fields not allowed
+        const updateData = {};
         for (const [key, val] of Object.entries(fields)) {
-            if (allowed.includes(key)) {
-                sets.push(`${key} = ?`);
-                vals.push(val);
-            }
+            if (allowed.includes(key)) updateData[key] = val;
         }
-        if (sets.length === 0) return this.findById(id);
-        sets.push("updated_at = datetime('now')");
-        vals.push(id);
-        getDb().prepare(`UPDATE users SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+
+        if (Object.keys(updateData).length === 0) return this.findById(id);
+
+        updateData.updated_at = sql`CURRENT_TIMESTAMP`;
+
+        await sql`UPDATE users SET ${sql(updateData)} WHERE id = ${id}`;
         return this.findById(id);
     }
 
-    static setOnline(id, isOnline) {
-        getDb().prepare('UPDATE users SET is_online = ? WHERE id = ?').run(isOnline ? 1 : 0, id);
+    static async setOnline(id, isOnline) {
+        const sql = getDb();
+        await sql`UPDATE users SET is_online = ${isOnline ? 1 : 0} WHERE id = ${id}`;
     }
 
     static safeUser(user) {

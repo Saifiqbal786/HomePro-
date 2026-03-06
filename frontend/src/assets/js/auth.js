@@ -31,6 +31,8 @@ function redirectByRole(role) {
         window.location.href = '/src/pages/homeowner/search-workers.html';
     } else if (role === 'worker') {
         window.location.href = '/src/pages/worker/dashboard.html';
+    } else if (role === 'admin') {
+        window.location.href = '/src/pages/admin/dashboard.html';
     }
 }
 

@@ -246,6 +246,8 @@
             if (gender) params.set('gender', gender);
             const sortBy = document.getElementById('sortBy').value;
             if (sortBy) params.set('sortBy', sortBy);
+            const searchQuery = document.getElementById('searchInput').value.trim();
+            if (searchQuery) params.set('query', searchQuery);
             params.set('page', currentPage);
 
             try {
@@ -278,7 +280,16 @@
         </div>
         <div class="flex-1 min-w-0">
           <h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">${w.name}</h3>
-          <p class="text-sm text-slate-500 truncate">${JSON.parse(w.services || '[]').join(', ') || 'General Services'}</p>
+          <p class="text-sm text-slate-500 truncate">${(() => {
+                    try {
+                        let s = w.services;
+                        if (!s) return 'General Services';
+                        let parsed = (typeof s === 'string') ? JSON.parse(s) : s;
+                        if (typeof parsed === 'string') parsed = JSON.parse(parsed); // Handle double encoding
+                        return Array.isArray(parsed) && parsed.length ? parsed.join(', ') : 'General Services';
+                    } catch (e) { return 'General Services'; }
+                })()
+                }</p>
           <div class="flex items-center gap-1 mt-1 text-sm">
             <span class="material-symbols-outlined text-amber-400 text-sm" style="font-variation-settings:'FILL' 1">star</span>
             <span class="font-medium">${w.rating}</span>

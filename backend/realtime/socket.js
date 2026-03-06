@@ -16,7 +16,7 @@ function setupSocket(io) {
         }
     });
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
         const userId = socket.user.id;
         console.log(`[SOCKET] User connected: ${userId}`);
 
@@ -24,23 +24,28 @@ function setupSocket(io) {
         socket.join(userId);
 
         // Set user online
-        User.setOnline(userId, true);
+        await User.setOnline(userId, true);
         io.emit('userOnline', { userId, online: true });
 
         // Handle chat messages
-        socket.on('sendMessage', (data, callback) => {
+        socket.on('sendMessage', async (data, callback) => {
             const Message = require('../models/Message');
-            const message = Message.create({
-                sender_id: userId,
-                receiver_id: data.receiver_id,
-                content: data.content,
-                message_type: data.message_type || 'text',
-            });
+            try {
+                const message = await Message.create({
+                    sender_id: userId,
+                    receiver_id: data.receiver_id,
+                    content: data.content,
+                    message_type: data.message_type || 'text',
+                });
 
-            // Emit to receiver
-            io.to(data.receiver_id).emit('newMessage', message);
-            // Confirm to sender
-            if (callback) callback(message);
+                // Emit to receiver
+                io.to(data.receiver_id).emit('newMessage', message);
+                // Confirm to sender
+                if (callback) callback(message);
+            } catch (err) {
+                console.error('Socket sendMessage error:', err);
+                if (callback) callback({ error: err.message });
+            }
         });
 
         // Typing indicator
@@ -51,9 +56,9 @@ function setupSocket(io) {
         });
 
         // Disconnect
-        socket.on('disconnect', () => {
+        socket.on('disconnect', async () => {
             console.log(`[SOCKET] User disconnected: ${userId}`);
-            User.setOnline(userId, false);
+            await User.setOnline(userId, false);
             io.emit('userOnline', { userId, online: false });
         });
     });

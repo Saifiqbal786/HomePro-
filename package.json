@@ -4,9 +4,9 @@
   "description": "Professional home services platform connecting homeowners with verified workers",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node backend/server.js",
-    "seed": "node database/seeders/seed.js",
+    "start": "node --env-file=backend/.env backend/server.js",
+    "dev": "node --env-file=backend/.env backend/server.js",
+    "seed": "node --env-file=backend/.env database/seeders/seed.js",
     "test": "node --experimental-vm-modules backend/tests/auth.test.js"
   },
   "dependencies": {
@@ -18,8 +18,8 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.1.1",
     "multer-storage-cloudinary": "^4.0.0",
+    "postgres": "^3.4.8",
     "socket.io": "^4.7.5",
-    "sql.js": "^1.10.3",
     "uuid": "^9.0.1"
   },
   "keywords": [

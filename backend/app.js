@@ -10,6 +10,7 @@ const chatRoutes = require('./routes/chat.routes');
 const reviewRoutes = require('./routes/review.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const uploadRoutes = require('./routes/upload.routes'); // NEW
+const adminRoutes = require('./routes/admin.routes'); // NEW ADMIN 
 const errorMiddleware = require('./middleware/error.middleware');
 const authMiddleware = require('./middleware/auth.middleware');
 const { getDb } = require('./config/database');
@@ -37,34 +38,55 @@ app.use('/api/messages', chatRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/upload', uploadRoutes); // NEW
+app.use('/api/admin', adminRoutes); // NEW ADMIN
 
 // Notifications API
-app.get('/api/notifications', authMiddleware, (req, res) => {
+app.get('/api/notifications', authMiddleware, async (req, res) => {
     try {
-        const notifications = getDb().prepare(
-            'SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50'
-        ).all(req.user.id);
-        const unreadCount = getDb().prepare(
-            'SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0'
-        ).get(req.user.id);
-        res.json({ notifications, unread_count: unreadCount.count });
+        const sql = getDb();
+        const notifications = await sql`
+            SELECT * FROM notifications 
+            WHERE user_id = ${req.user.id} 
+            ORDER BY created_at DESC LIMIT 50
+        `;
+        const unreadResult = await sql`
+            SELECT COUNT(*) as count 
+            FROM notifications 
+            WHERE user_id = ${req.user.id} AND is_read = 0
+        `;
+
+        let unreadCount = 0;
+        if (unreadResult.length > 0) {
+            unreadCount = parseInt(unreadResult[0].count, 10);
+        }
+        res.json({ notifications, unread_count: unreadCount });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-app.put('/api/notifications/:id/read', authMiddleware, (req, res) => {
+app.put('/api/notifications/:id/read', authMiddleware, async (req, res) => {
     try {
-        getDb().prepare('UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?').run(req.params.id, req.user.id);
+        const sql = getDb();
+        await sql`
+            UPDATE notifications 
+            SET is_read = 1 
+            WHERE id = ${req.params.id} AND user_id = ${req.user.id}
+        `;
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-app.put('/api/notifications/read-all', authMiddleware, (req, res) => {
+app.put('/api/notifications/read-all', authMiddleware, async (req, res) => {
     try {
-        getDb().prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ?').run(req.user.id);
+        const sql = getDb();
+        await sql`
+            UPDATE notifications 
+            SET is_read = 1 
+            WHERE user_id = ${req.user.id}
+        `;
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });

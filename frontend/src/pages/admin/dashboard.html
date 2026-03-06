@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomePro Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50 flex h-screen overflow-hidden text-gray-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-hammer text-primary-500"></i> HomePro Admin
+            </h1>
+        </div>
+
+        <nav class="flex-1 py-4 overflow-y-auto">
+            <ul class="space-y-1">
+                <li>
+                    <a href="#"
+                        class="flex items-center gap-3 px-6 py-3 text-white bg-slate-800 border-l-4 border-primary-500">
+                        <i class="fas fa-chart-pie w-5"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="navUsers"
+                        class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                        <i class="fas fa-users w-5"></i> Users
+                    </a>
+                </li>
+                <!-- Future Navigation Links -->
+            </ul>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <button id="logoutBtn"
+                class="flex items-center gap-3 px-2 py-2 w-full text-slate-400 hover:text-white transition-colors">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10">
+            <button class="md:hidden text-gray-500 hover:text-gray-700">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center gap-4 ml-auto">
+                <span id="adminNameDisplay" class="text-sm font-medium text-gray-700">Admin</span>
+                <img id="adminAvatar" src="https://ui-avatars.com/api/?name=Admin" alt="Admin"
+                    class="w-8 h-8 rounded-full">
+            </div>
+        </header>
+
+        <!-- Dynamic Page Content -->
+        <div class="flex-1 overflow-y-auto bg-slate-50 p-6">
+            <div class="max-w-7xl mx-auto space-y-6">
+
+                <h2 class="text-2xl font-bold text-gray-800">Platform Overview</h2>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Homeowners</p>
+                            <h3 id="statHomeowners" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                            <i class="fas fa-hard-hat text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Workers</p>
+                            <h3 id="statWorkers" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                            <i class="fas fa-clipboard-check text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Platform Tasks</p>
+                            <h3 id="statTasks" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Volume</p>
+                            <h3 id="statRevenue" class="text-2xl font-bold text-gray-800 mt-1 cursor-wait">...</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-gray-800">Recent Platform Tasks</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                                    <th class="px-6 py-3 font-medium">Homeowner</th>
+                                    <th class="px-6 py-3 font-medium">Worker</th>
+                                    <th class="px-6 py-3 font-medium">Service</th>
+                                    <th class="px-6 py-3 font-medium">Status</th>
+                                    <th class="px-6 py-3 font-medium text-right">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTasksTable" class="text-sm divide-y divide-gray-100">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading recent activity...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/admin.js"></script>
+</body>
+
+</html>
