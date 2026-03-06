@@ -1,0 +1,119 @@
+/**
+ * i18n.js
+ * Handles English/Urdu translation across the HomePro application
+ * Powered by Google Translate API
+ */
+
+// 1. Inject the Google Translate initialization script into the head
+(function injectGoogleTranslate() {
+    // Only inject once
+    if (document.getElementById('google-translate-script')) return;
+
+    // Create the required google_translate_element div (we'll hide this later)
+    const gtContainer = document.createElement('div');
+    gtContainer.id = 'google_translate_element';
+    gtContainer.style.display = 'none'; // Hide the ugly default widget
+    document.body.appendChild(gtContainer);
+
+    // Initialize function called by Google's script
+    window.googleTranslateElementInit = function () {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'en,ur', // Only allow English and Urdu
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false
+        }, 'google_translate_element');
+    };
+
+    // Load the actual Google Translate script
+    const script = document.createElement('script');
+    script.id = 'google-translate-script';
+    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    document.head.appendChild(script);
+})();
+
+// 2. Custom Translation Trigger Logic
+function changeLanguage(targetLang) {
+    // Google translate uses a select dropdown internally
+    const selectElement = document.querySelector('.goog-te-combo');
+    if (selectElement) {
+        selectElement.value = targetLang;
+        // Trigger the change event so Google recognizes it
+        selectElement.dispatchEvent(new Event('change'));
+
+        // Save preference
+        localStorage.setItem('homepro_lang', targetLang);
+        updateToggleButton(targetLang);
+    } else {
+        // If the script hasn't fully loaded yet, wait and retry
+        setTimeout(() => changeLanguage(targetLang), 500);
+    }
+}
+
+// 3. UI Toggle Button Logic
+function updateToggleButton(lang) {
+    const isUrdu = lang === 'ur';
+    const toggleBtn = document.getElementById('i18n-toggle-btn');
+    if (!toggleBtn) return;
+
+    if (isUrdu) {
+        toggleBtn.innerHTML = '<span class="text-xs font-bold text-slate-400">EN</span><span class="mx-1 text-slate-300">/</span><span class="text-sm font-bold text-primary">UR</span>';
+    } else {
+        toggleBtn.innerHTML = '<span class="text-sm font-bold text-primary">EN</span><span class="mx-1 text-slate-300">/</span><span class="text-xs font-bold text-slate-400">UR</span>';
+    }
+}
+
+function handleLanguageToggle() {
+    const currentLang = localStorage.getItem('homepro_lang') || 'en';
+    const newLang = currentLang === 'en' ? 'ur' : 'en';
+    changeLanguage(newLang);
+}
+
+// 4. Inject Custom UI and Restore Preference on Load
+window.addEventListener('DOMContentLoaded', () => {
+    // Insert a custom style to hide the intrusive Google Translate top banner
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* Hide the top banner */
+        .goog-te-banner-frame { display: none !important; }
+        /* Prevent body shift caused by the top banner */
+        body { top: 0px !important; }
+        /* Hide the "Powered by Google Translate" tooltip */
+        .goog-tooltip { display: none !important; }
+        .goog-tooltip:hover { display: none !important; }
+        /* Hide the original element */
+        .goog-te-gadget { display: none !important; }
+        /* Fix hovering text styling issues */
+        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+    `;
+    document.head.appendChild(style);
+
+    // Build the language toggle button UI
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'i18n-toggle-btn';
+    toggleBtn.className = 'flex items-center justify-center px-3 py-1.5 ml-4 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-sm ml-auto mr-4 cursor-pointer z-50';
+    toggleBtn.onclick = handleLanguageToggle;
+    toggleBtn.title = "Switch Language (English / Urdu)";
+
+    // Inject the button into the header
+    const headerNav = document.querySelector('header nav') || document.querySelector('header > div:last-child > div:last-child') || document.querySelector('header');
+
+    if (headerNav) {
+        // If it's a specific nav bar
+        if (headerNav.tagName === 'NAV') {
+            headerNav.insertBefore(toggleBtn, headerNav.firstChild);
+        } else {
+            headerNav.appendChild(toggleBtn);
+        }
+    }
+
+    // Try to restore user preference
+    const savedLang = localStorage.getItem('homepro_lang');
+    if (savedLang === 'ur') {
+        // Need a slight delay to ensure Google's script loaded the dropdown before we try to change it
+        setTimeout(() => changeLanguage('ur'), 1000);
+    } else {
+        updateToggleButton('en');
+    }
+});
