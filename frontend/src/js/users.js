@@ -92,7 +92,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     })
                 });
 
-                const data = await res.json();
+                let data;
+                try {
+                    const text = await res.text();
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error('Server returned an invalid response (not JSON). Check backend logs.');
+                }
+
                 if (!res.ok) throw new Error(data.error || 'Failed to create user');
 
                 alert(`Success: ${data.message}`);
