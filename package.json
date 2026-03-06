@@ -29,5 +29,8 @@
     "homeowners"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "supertest": "^7.2.2"
+  }
 }

@@ -9,5 +9,6 @@ router.use(roleMiddleware('admin'));
 
 router.get('/stats', admin.getDashboardStats);
 router.get('/users', admin.getAllUsers);
+router.post('/add-user', admin.addUser);
 
 module.exports = router;

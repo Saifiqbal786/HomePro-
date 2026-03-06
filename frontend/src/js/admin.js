@@ -91,4 +91,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('homepro_user');
         window.location.href = '../auth/login.html';
     });
+
+    const addUserForm = document.getElementById('addUserForm');
+    if (addUserForm) {
+        addUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addUserBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Creating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin/add-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('addUserName').value,
+                        email: document.getElementById('addUserEmail').value,
+                        password: document.getElementById('addUserPassword').value,
+                        phone: document.getElementById('addUserPhone').value,
+                        role: document.getElementById('addUserRole').value
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to create user');
+
+                alert(`Success: ${data.message}`);
+                document.getElementById('addUserModal').classList.add('hidden');
+                addUserForm.reset();
+                window.location.reload(); // Refresh stats
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
 });

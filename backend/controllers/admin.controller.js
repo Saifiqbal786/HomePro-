@@ -83,3 +83,44 @@ exports.getAllUsers = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+const bcrypt = require('bcryptjs');
+const { saltRounds } = require('../config/auth-config');
+const WorkerProfile = require('../models/WorkerProfile');
+
+exports.addUser = async (req, res) => {
+    try {
+        const { role, name, email, phone, password } = req.body;
+        if (!role || !name || !email || !password) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const existing = await User.findByEmail(email);
+        if (existing) return res.status(409).json({ error: 'Email already registered.' });
+
+        const hashedPassword = bcrypt.hashSync(password, saltRounds);
+        const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=137fec&color=fff&size=128`;
+
+        const user = await User.create({
+            role, name, email, phone, password: hashedPassword, avatar
+        });
+
+        // Initialize blank profile for workers
+        if (role === 'worker') {
+            await WorkerProfile.create(user.id, {
+                bio: '',
+                services: '[]',
+                skills: '[]',
+                hourly_rate: 0,
+                experience_years: 0,
+            });
+        }
+
+        res.status(201).json({
+            message: 'User created successfully',
+            user: User.safeUser(user)
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
