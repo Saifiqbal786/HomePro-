@@ -1,11 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HomePro - Home Services Platform</title>
-  <meta name="description" content="Find verified home service professionals near you. Plumbing, electrical, cleaning, and more."/>
-  <link rel="stylesheet" href="/src/assets/css/main.css"/>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>HomePro | Quality Home Services, On Demand</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#137fec",
+            "background-light": "#f7f9fc",
+            "background-dark": "#0a1120",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"],
+            "sans": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .dark .glass {
+      background: rgba(10, 17, 32, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hero-gradient {
+      background: radial-gradient(circle at top right, rgba(19, 127, 236, 0.15), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(19, 127, 236, 0.05), transparent 40%);
+    }
+  </style>
   <script>
     // Auto-redirect if logged in
     const token = localStorage.getItem('homepro_token');
@@ -15,7 +63,498 @@
     }
   </script>
 </head>
-<body>
-  <script>window.location.href = '/src/pages/auth/login.html';</script>
+
+<body
+  class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300">
+  <header
+    class="fixed top-0 w-full z-50 transition-all duration-300 glass border-b border-slate-200/50 dark:border-slate-800/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center gap-2">
+          <div class="bg-primary p-2 rounded-lg">
+            <span class="material-symbols-outlined text-white">home_repair_service</span>
+          </div>
+          <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">HomePro</span>
+        </div>
+        <nav class="hidden md:flex items-center gap-8">
+          <a class="text-sm font-medium hover:text-primary transition-colors" href="/src/pages/auth/login.html">Find
+            Workers</a>
+          <a class="text-sm font-medium hover:text-primary transition-colors"
+            href="/src/pages/auth/signup-worker.html">Become a Pro</a>
+        </nav>
+        <div class="flex items-center gap-4">
+          <a class="hidden sm:block text-sm font-semibold hover:text-primary transition-colors"
+            href="/src/pages/auth/login.html">Login</a>
+          <a href="/src/pages/auth/signup-homeowner.html"
+            class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:translate-y-0">
+            Sign Up
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="pt-20">
+    <section class="relative overflow-hidden hero-gradient py-20 lg:py-32">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+          <div class="max-w-2xl">
+            <div
+              class="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary/20 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              Trusted by 50,000+ households
+            </div>
+            <h1 class="text-5xl lg:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] mb-6">
+              Quality Home Services, <span class="text-primary">On Demand.</span>
+            </h1>
+            <p class="text-lg text-slate-600 dark:text-slate-400 mb-10 leading-relaxed max-w-lg">
+              Connect with top-rated local professionals for plumbing, electrical, cleaning, and more. Transparent
+              pricing, verified reviews.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <a href="/src/pages/auth/signup-homeowner.html"
+                class="flex items-center justify-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary/25 hover:bg-primary/90 transition-all hover:-translate-y-1">
+                <span class="material-symbols-outlined">search</span>
+                Hire a Worker
+              </a>
+              <a href="/src/pages/auth/signup-worker.html"
+                class="flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                <span class="material-symbols-outlined">work</span>
+                Earn as a Pro
+              </a>
+            </div>
+          </div>
+          <div class="relative hidden lg:block">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-4 pt-12">
+                <div class="glass p-4 rounded-2xl shadow-xl hover:scale-105 transition-transform">
+                  <div class="flex items-center gap-4 mb-3">
+                    <img class="w-12 h-12 rounded-full object-cover"
+                      data-alt="Professional portrait of a service worker"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWD47RoLxiiI_0ZkK-GksuG58I5MCg4yQAp6PBEjjr4rEHfCIkS0VyapDXRKB_R_-vlGLPK5PBeDUrrKbyqH83lUm1eC4IgP-sA1-zLt4SgZlkThRdrKRJnaAidd2Zg-FPzWlVIxBS7t4DXnIlVNrkIap8XDGWKDtmRym1fjGWPR2s5UjlOyQXBEdPxY99hTdhasRTf_nyqTZ_jCw4n4eODZAVr8AgpTj7yceWGcwUdkhbjxhQNVOTxhZvu3Hu96Y9fwDMl7qLtria" />
+                    <div>
+                      <h4 class="font-bold text-sm">Alex Rivers</h4>
+                      <p class="text-xs text-slate-500">Master Electrician</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-yellow-500">
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="text-xs font-bold text-slate-700 ml-1">5.0</span>
+                  </div>
+                </div>
+                <div class="glass p-4 rounded-2xl shadow-xl hover:scale-105 transition-transform">
+                  <div class="flex items-center gap-4 mb-3">
+                    <img class="w-12 h-12 rounded-full object-cover" data-alt="Female cleaner smiling at camera"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPyTobXPikwiS_5z-TLzQ13bSPn3_vpk9pEcccRLgpP373z-lxPRKxd37xZpuCmXm2oDuoBOiBjIh49qpsnsf-CMknqJNM06F22jFSN-qgrnQJI-9dMgNeb5Jl8NrKcV4aTdGy1p6CxLBk18tKS576zihMkNbug-ZB89g81BSs5MpxoATHQS5In-zotTLNZIOy5sJjmFWrsnUCprHrTf4NWvLbUX_JRwCVDM31gCe35Gibm8DTN57JIwkr_hHZj-EjviYIm-iLCcTY" />
+                    <div>
+                      <h4 class="font-bold text-sm">Sarah Chen</h4>
+                      <p class="text-xs text-slate-500">Professional Cleaner</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-yellow-500">
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm">star</span>
+                    <span class="text-xs font-bold text-slate-700 ml-1">4.9</span>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-4">
+                <div class="glass p-4 rounded-2xl shadow-xl hover:scale-105 transition-transform">
+                  <div class="flex items-center gap-4 mb-3">
+                    <img class="w-12 h-12 rounded-full object-cover" data-alt="Handyman holding tools"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT8-1biZk7RbCUUhQkXzSKq4XD_IScoQZCW_KpDWw-a8AWDOft_F6ph2OzgTsjE2hNT8ohsDX2axrnR15wvEMbM84HjlFjmR6ui6DqQA9J76ibFKAYW4rk4xQ95aKIkqAcIZ2nPlcus9FuY8nJYZ-0wo7RJCZcdF32NGYKphTokni2gf7jrMYcYI8bLfEzfWIh4tDpGWdg6pEoBiFE4JiY8MNonNAx2Lk1uTuu0hcTgWZy3NuTWnHH1PiIoGdObS2leHvgb1dIi7yP" />
+                    <div>
+                      <h4 class="font-bold text-sm">Marc Wilson</h4>
+                      <p class="text-xs text-slate-500">Expert Plumber</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-yellow-500">
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="material-symbols-outlined text-sm fill-1">star</span>
+                    <span class="text-xs font-bold text-slate-700 ml-1">5.0</span>
+                  </div>
+                </div>
+                <div
+                  class="bg-primary/95 text-white p-6 rounded-2xl shadow-2xl shadow-primary/30 transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                  <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined text-3xl">verified_user</span>
+                    <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded">PRO</span>
+                  </div>
+                  <p class="text-sm font-medium opacity-90 mb-2">Service Completed</p>
+                  <h3 class="text-xl font-bold mb-4">AC Repair &amp; Maintenance</h3>
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold">$120.00</span>
+                    <span class="text-xs opacity-70 italic">Payment Secured</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-white dark:bg-slate-900/50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl font-extrabold mb-4">Trust &amp; Safety First</h2>
+          <p class="text-slate-600 dark:text-slate-400">We go the extra mile to ensure your peace of mind.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div
+            class="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-shadow group">
+            <div
+              class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center rounded-xl mb-6 group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-3xl">verified</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Verified Workers</h3>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Every professional undergoes a background
+              check and certification verification process.</p>
+          </div>
+          <div
+            class="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-shadow group">
+            <div
+              class="w-14 h-14 bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center rounded-xl mb-6 group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-3xl">payments</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Secure Payments</h3>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Funds are held in escrow and only released
+              when you are 100% satisfied with the work.</p>
+          </div>
+          <div
+            class="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-shadow group">
+            <div
+              class="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center rounded-xl mb-6 group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-3xl">share_location</span>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Live Tracking</h3>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed" data-location="New York City">Track your
+              provider's arrival in real-time on our interactive map interface.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-24">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-extrabold mb-6">How It Works</h2>
+          <div class="inline-flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full mb-8">
+            <button
+              class="px-8 py-2.5 rounded-full text-sm font-bold bg-white dark:bg-slate-700 shadow-sm text-primary">Homeowners</button>
+            <button
+              class="px-8 py-2.5 rounded-full text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Workers</button>
+          </div>
+        </div>
+        <div class="space-y-12">
+          <div class="flex gap-6 items-start">
+            <div
+              class="flex-shrink-0 w-12 h-12 bg-primary text-white flex items-center justify-center rounded-full font-bold text-xl shadow-lg shadow-primary/20">
+              1</div>
+            <div>
+              <h3 class="text-2xl font-bold mb-2">Search Services</h3>
+              <p class="text-slate-600 dark:text-slate-400 text-lg">Browse through hundreds of services and find the
+                right pro based on skills, reviews, and price.</p>
+            </div>
+          </div>
+          <div class="flex gap-6 items-start">
+            <div
+              class="flex-shrink-0 w-12 h-12 bg-primary text-white flex items-center justify-center rounded-full font-bold text-xl shadow-lg shadow-primary/20">
+              2</div>
+            <div>
+              <h3 class="text-2xl font-bold mb-2">Book &amp; Schedule</h3>
+              <p class="text-slate-600 dark:text-slate-400 text-lg">Pick a time that works for you. Our professionals
+                are flexible and ready to help when you need it.</p>
+            </div>
+          </div>
+          <div class="flex gap-6 items-start">
+            <div
+              class="flex-shrink-0 w-12 h-12 bg-primary text-white flex items-center justify-center rounded-full font-bold text-xl shadow-lg shadow-primary/20">
+              3</div>
+            <div>
+              <h3 class="text-2xl font-bold mb-2">Secure Payment</h3>
+              <p class="text-slate-600 dark:text-slate-400 text-lg">Pay easily through the app. Your money is protected
+                until you confirm the job is complete.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-slate-50 dark:bg-slate-900/30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-end mb-12">
+          <div>
+            <h2 class="text-4xl font-extrabold mb-4">Popular Categories</h2>
+            <p class="text-slate-600 dark:text-slate-400">Everything your home needs, in one place.</p>
+          </div>
+          <a class="text-primary font-bold flex items-center gap-1 hover:underline"
+            href="/src/pages/auth/signup-homeowner.html">
+            View all <span class="material-symbols-outlined">chevron_right</span>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              data-alt="Tidy living room being cleaned"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpLeqUtpueMReQsgFCFPRz_8KcE_P2tICvZ5Waf--CPscIEBbMG9T6M_uG01Rs0ZHO3e6mSRlEFfsOgFWWRla_0gtJzuv_oVyOkm8jIz-9vPazTa8k6GzKCHRnzDiz4Wka14E502I11GNv5frt-DC4AY9ozU-i8lK5vKYoPWVQUOMDdZHAJ0g9L72P2kg28Ip666zBtsGncj37Pww404i2rP9_Qtvzy9S-ZhBBoWQMTDiGdLrfr9xmVxxNRPKypKufzQB_COTwCOs2" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <h3 class="text-xl font-bold">Cleaning</h3>
+              <p class="text-sm opacity-80">1.2k+ Pros</p>
+            </div>
+          </div>
+          <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer md:mt-8">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              data-alt="Plumber fixing a sink pipe"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXauet6074NFdLBhWvIweCslW_sb4s_4TAIKDg9JJa0hajQH4BP5rqx-LA4J16_QBwpNEIUEgosGexcRqIm4hoEX9G621ylUruIG0-VTHTlBUDqY-Tu0DIUdhviZw7PxKGNwSkdKHvm8uorMfHJM8UdXaynuWqE3ElDk7-sLXrpeT59_gFkFGO6WBfs5nNmiw-hKtF16cKc3U-zxcjhJhu7q73pg1PGAyUZQnmLkVY9Hmd96-a1kse-2tPOSC5-Dn84k_NWJJTcLo2" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <h3 class="text-xl font-bold">Plumbing</h3>
+              <p class="text-sm opacity-80">850+ Pros</p>
+            </div>
+          </div>
+          <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              data-alt="Electrician working on electrical panel"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFHEOh_cN55n9dynyd4tS9xueuSlD5JAGrLHmAje26nWQ4zBZ4rbOctfz66BpL0DdJsTljyZhK_AWLYPkJTQtJ_zzGJqo_brNk7ojTEzlFw2cEUX3CjMlkPfFIWI3QQRgnw1hdgi33KiuXZjS3mVEFaLUa48C-k11wCnkqOgdsf86j7t576cMyPx1qEGBpw-m73SYiG6Z5t4uOL0k7WnTnF0v8Ud7ztQi4voKduLWzVeOZHck-fpVLnqRaURLIAAKTkjIiw2aUr1_f" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <h3 class="text-xl font-bold">Electrical</h3>
+              <p class="text-sm opacity-80">600+ Pros</p>
+            </div>
+          </div>
+          <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer md:mt-8">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              data-alt="Handyman repairing a kitchen cabinet"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAd_X81MhxsbY6TiaxKpEHT3uWHbzEXTGK8irl9TZd7ali6uFfY8HkmRJsXjvoGrZX9BSZ8Rpn2dZWfgR6Q6itadNM1MQw5sEOewKp5VO40H6g8xdBlJL3MygsXDmXvrCWSf2x00txLzmU_2IQxCRp1LjLmBZtfNfp7sB1UeMSqoa5YPFcI8VoHJsH1ewdzG2VMVH_YIXYYcG0uAL_SxLopB5I6ZgV8dfRmpA2C-TRwEjvuNFEOTcjgwAVADJQAP2FYqBjbyN1AhlT4" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <h3 class="text-xl font-bold">Handyman</h3>
+              <p class="text-sm opacity-80">2.4k+ Pros</p>
+            </div>
+          </div>
+          <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer hidden lg:block">
+            <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              data-alt="Moving boxes in a clean room"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuACUC9FpX11-cCVPQYvivLLlKz30me9JLOQT74Oi1j5bt9eLYVfTa5hepl9GwfrTQxeVn00TBsjruH-FbCucTvOCSYmhyceJaETSFM13UYfvZrnwLEwtDCNl8lImASrwrf8DYcAzLQM2pJ-wo--sF-10swazB5J8Y-mKDmHKLKLFQLeAAyuuu2F3U6LOHf5B2LpeO6iOP62QxVnWKblCrBhPII_k2PVTuwBjhN8d1jdhx1pvQoAgBKpoLebhLyQA8QXqHWXZBZ3vQiS" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <h3 class="text-xl font-bold">Moving</h3>
+              <p class="text-sm opacity-80">450+ Pros</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-extrabold mb-4">What Customers Say</h2>
+          <p class="text-slate-600 dark:text-slate-400">Join thousands of happy homeowners.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="glass p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex text-yellow-500 mb-6">
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+            </div>
+            <p class="text-slate-700 dark:text-slate-300 italic mb-8 leading-relaxed">
+              "HomePro changed my life. I found a plumber within 10 minutes for an emergency leak on a Sunday night.
+              Alex was professional and fair."
+            </p>
+            <div class="flex items-center gap-4">
+              <img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a satisfied female customer"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGTt2SglzCE2_418YutgdBHc6-W0KWcGgCqrSRqRmLn8Y56JWYt25sBs7OiNOnjSDaDADTiOjyhE3Nay5qx0vnb5h8lfPtXm-irNGTlTQ7jDOSGDMs5LSWKJFL6svWB3LZSGaLAIuv5bar7iFyyIb_xqdFNbu2AP5ECtnJAKxsfznpgc15wRR4YfOlcLepYSsTRfNe4p_eKBYrVfflpZuQ4y0fGgczWiVxaNyHYXWAVtEeA-3eQsgdpEUNNIQ6wIa4MUQqMO7rfLsI" />
+              <div>
+                <h4 class="font-bold">Emily Thompson</h4>
+                <p class="text-xs text-slate-500">Homeowner in Austin</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex text-yellow-500 mb-6">
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+            </div>
+            <p class="text-slate-700 dark:text-slate-300 italic mb-8 leading-relaxed">
+              "The app is so easy to use. I love that I can track the cleaner's arrival and pay securely through the
+              platform. Highly recommend it!"
+            </p>
+            <div class="flex items-center gap-4">
+              <img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a satisfied male customer"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHNsq_EsZk5_5gHXAZjCCH5clml_vok8kzae3ifWL4DQvulVnxj2KtvzRT5_ArhJdBkw22pm-3JV5q8Hz3P5QqR8s1PpO7ZUjlxrFt2ecoGvmgblp264jCvijLNAtFaDMcTzpvQsd5VdpZSenv4hS4hgofrJEdbeZuYye04uja305oNPHx3ambVTwWtfR_87MzNKcH_s8tySwAdbGTJ1Adm64U74gr3wzARpOM1523XV72w0eUPWxQYeV8mUwJ6RkfFvrTLHwZuwwD" />
+              <div>
+                <h4 class="font-bold">James Rodriguez</h4>
+                <p class="text-xs text-slate-500">Homeowner in Miami</p>
+              </div>
+            </div>
+          </div>
+          <div class="glass p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex text-yellow-500 mb-6">
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1">star</span>
+              <span class="material-symbols-outlined fill-1 text-slate-300">star</span>
+            </div>
+            <p class="text-slate-700 dark:text-slate-300 italic mb-8 leading-relaxed">
+              "As a busy professional, HomePro is my go-to for everything. From house cleaning to TV mounting, the
+              quality has been consistently top-notch."
+            </p>
+            <div class="flex items-center gap-4">
+              <img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a young professional woman"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkuBMtcRcQC8VZy26HZXxpzDlgLwVy6GytV4a8JRe28lJAtiClqxaSXx_84UPOR-V95DNjzIslsrWTTWwe0SIY6PQuyFZrHY30HeI2ytVk5FGlody2ihJRsSedN9Z48v1k-muDmIRDkyfeUdOeFwFJW0350yw6Pn62G5t3jqACCbTsRs1MksfC9ovaqOhqEYvkwFt5UzwVASkW5VCno3eLQBSEUYUCoZO4gIuvPhhXOj3p84YmkGvyPrJGYKZlXXXSMMYhLsBF_3Ya" />
+              <div>
+                <h4 class="font-bold">Sofia Martinez</h4>
+                <p class="text-xs text-slate-500">Homeowner in Denver</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 px-4">
+      <div class="max-w-7xl mx-auto rounded-3xl overflow-hidden relative bg-slate-950 text-white p-12 lg:p-20">
+        <div class="absolute top-0 right-0 w-1/3 h-full opacity-10 pointer-events-none">
+          <svg class="h-full w-full" preserveaspectratio="none" viewbox="0 0 100 100">
+            <path d="M0 0 L100 0 L100 100 Z" fill="currentColor"></path>
+          </svg>
+        </div>
+        <div class="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">Ready to transform your home?</h2>
+            <p class="text-xl text-slate-400 mb-8 max-w-lg">Join the marketplace where quality meets convenience. Book
+              your first service today.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <a href="/src/pages/auth/signup-homeowner.html"
+                class="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-center rounded-xl font-bold text-lg transition-all transform hover:-translate-y-1">Join
+                Today</a>
+              <a href="/src/pages/auth/signup-worker.html"
+                class="bg-white/10 hover:bg-white/20 text-white border text-center border-white/20 px-8 py-4 rounded-xl font-bold text-lg transition-all">Become
+                a Pro</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex justify-end">
+            <div class="bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-md max-w-sm">
+              <div class="flex gap-4 mb-6">
+                <div class="bg-primary/20 p-3 rounded-full text-primary">
+                  <span class="material-symbols-outlined">verified</span>
+                </div>
+                <div>
+                  <h4 class="font-bold text-xl">Insurance Coverage</h4>
+                  <p class="text-slate-400 text-sm">Every booking is protected by our $1M liability guarantee.</p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="bg-green-500/20 p-3 rounded-full text-green-500">
+                  <span class="material-symbols-outlined">support_agent</span>
+                </div>
+                <div>
+                  <h4 class="font-bold text-xl">24/7 Support</h4>
+                  <p class="text-slate-400 text-sm">Our dedicated team is here for you, day or night.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-16">
+        <div class="col-span-2">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="bg-primary p-2 rounded-lg">
+              <span class="material-symbols-outlined text-white text-sm">home_repair_service</span>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">HomePro</span>
+          </div>
+          <p class="text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+            The world's most trusted marketplace for home services. We connect homeowners with verified professionals
+            for every need.
+          </p>
+          <div class="flex gap-4">
+            <a class="w-10 h-10 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-full hover:bg-primary hover:text-white transition-colors"
+              href="#">
+              <span class="material-symbols-outlined text-xl">share</span>
+            </a>
+            <a class="w-10 h-10 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-full hover:bg-primary hover:text-white transition-colors"
+              href="#">
+              <span class="material-symbols-outlined text-xl">link</span>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6">Platform</h4>
+          <ul class="space-y-4 text-slate-500 dark:text-slate-400">
+            <li><a class="hover:text-primary transition-colors" href="/src/pages/auth/login.html">Find a Pro</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Service Categories</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Cities</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Reviews</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6">For Pros</h4>
+          <ul class="space-y-4 text-slate-500 dark:text-slate-400">
+            <li><a class="hover:text-primary transition-colors" href="/src/pages/auth/signup-worker.html">Become a
+                Pro</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Pro Center</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Community</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Pro Apps</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6">Support</h4>
+          <ul class="space-y-4 text-slate-500 dark:text-slate-400">
+            <li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Safety</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Contact Us</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-6">Company</h4>
+          <ul class="space-y-4 text-slate-500 dark:text-slate-400">
+            <li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Careers</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Press</a></li>
+            <li><a class="hover:text-primary transition-colors" href="#">Blog</a></li>
+          </ul>
+        </div>
+      </div>
+      <div
+        class="border-t border-slate-100 dark:border-slate-800 pt-8 flex flex-col md:row justify-between items-center gap-4">
+        <p class="text-slate-500 text-sm">© 2024 HomePro Technologies Inc. All rights reserved.</p>
+        <div class="flex gap-6 text-sm text-slate-500">
+          <a class="hover:text-primary transition-colors" href="#">Terms</a>
+          <a class="hover:text-primary transition-colors" href="#">Privacy</a>
+          <a class="hover:text-primary transition-colors" href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
+
 </html>
