@@ -1,0 +1,51 @@
+```text
+# HomePro Feature Roadmap
+
+### 🥉 Phase 1: Beginner (Quick Wins & UI Polish)
+*Focus: Improving immediate user experience and visual trust.*
+
+*   **Image Uploads (Profile & Chat)**
+    *   **Implementation:** Integrate Cloudinary or AWS S3.
+    *   **Value:** Real avatars build trust; photos in chat allow for better problem diagnosis.
+*   **Email Notifications**
+    *   **Implementation:** Use SendGrid or Nodemailer.
+    *   **Value:** Increases retention by alerting users of messages and job updates while offline.
+*   **User Favorites List**
+    *   **Implementation:** Profile "heart" button and a saved list view.
+    *   **Value:** Enhances convenience for repeat customers.
+*   **Dark Mode Toggle**
+    *   **Implementation:** UI switch to toggle the Tailwind `dark` class.
+    *   **Value:** Improves accessibility and modernizes the interface.
+
+### 🥈 Phase 2: Intermediate (Core Business Logic)
+*Focus: Operationalizing the platform and formalizing transactions.*
+
+*   **Stripe Payment Integration**
+    *   **Implementation:** Replace simulations with the Stripe API.
+    *   **Value:** Enables actual monetization and secure fee processing.
+*   **Worker Availability Calendar**
+    *   **Implementation:** Interactive scheduling UI with backend validation.
+    *   **Value:** Prevents booking conflicts and streamlines worker management.
+*   **Admin Dashboard**
+    *   **Implementation:** Protected `/admin` route for internal operations.
+    *   **Value:** Essential for moderation, revenue tracking, and dispute resolution.
+*   **Chat Pagination**
+    *   **Implementation:** Infinite scroll for message history.
+    *   **Value:** Optimizes application performance for long-term users.
+
+### 🥇 Phase 3: Advanced (Scale & Real-time Features)
+*Focus: High-tech differentiators and premium security.*
+
+*   **Real-Time Geolocation Tracking**
+    *   **Implementation:** Google Maps API + Socket.io.
+    *   **Value:** Provides a "wow factor" and security via live worker tracking during jobs.
+*   **Automated Background Checks**
+    *   **Implementation:** 3rd party API integration (e.g., Checkr).
+    *   **Value:** Addresses the primary safety concerns of the marketplace.
+*   **Push Notifications (PWA)**
+    *   **Implementation:** Service Workers and Manifest for PWA capabilities.
+    *   **Value:** Provides a native app feel and instant communication on mobile.
+*   **AI-Powered Job Matching**
+    *   **Implementation:** OpenAI API for intent analysis.
+    *   **Value:** Automates worker recommendations based on natural language descriptions.
+```

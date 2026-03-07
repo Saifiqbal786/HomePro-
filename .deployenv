@@ -1,0 +1,27 @@
+# Vercel Deployment Environment Variables
+# Copy these values into your Vercel Project Settings -> Environment Variables
+
+# 1. Database Setup (REQUIRED for Vercel, must be Cloud PostgreSQL like Supabase or Neon)
+# Replace with your actual PostgreSQL connection string
+DATABASE_URL=postgresql://user:password@hostname:5432/dbname
+
+# 2. Authentication (REQUIRED)
+# A strong, random string used to secure user sessions
+JWT_SECRET=your_super_secret_production_key_here
+JWT_EXPIRES_IN=7d
+
+# 3. Email/OTP Notifications (Recommended for production functionality)
+# If using Gmail, this requires an App Password
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your_app_password
+
+# 4. Image Uploads - Cloudinary (REQUIRED for Vercel, as local storage won't persist)
+# Get these from your Cloudinary dashboard
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+# OR use the single URL format:
+# CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+
+# 5. Environment (Vercel typically sets this automatically, but good to have)
+NODE_ENV=production
